@@ -1,3 +1,8 @@
+# Dependencies
+node_modules
+.pnp
+.pnp.js
+
 # Lock files
 package-lock.json
 pnpm-lock.yaml
@@ -5,3 +10,33 @@ yarn.lock
 
 # Skills lock
 skills-lock.json
+
+# Build output
+dist
+build
+.rsbuild
+.rspack
+
+# Cache
+.cache
+.temp
+*.log
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test coverage
+coverage
+.nyc_output
+
+# Misc
+*.min.js
+*.min.css
