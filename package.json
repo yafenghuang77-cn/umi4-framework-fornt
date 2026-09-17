@@ -1,0 +1,44 @@
+{
+  "private": true,
+  "author": "yafenghuang-cn <shms9061@yumchina.com>",
+  "scripts": {
+    "build": "max build",
+    "dev": "max dev",
+    "format": "prettier --cache --write .",
+    "postinstall": "max setup",
+    "prepare": "husky",
+    "setup": "max setup",
+    "start": "npm run dev"
+  },
+  "dependencies": {
+    "@ant-design/icons": "^5.0.1",
+    "@ant-design/pro-components": "^2.4.4",
+    "@sentry/react": "^10.74.0",
+    "@tanstack/react-query": "^5.103.0",
+    "@types/js-cookie": "^3.0.6",
+    "@uidotdev/usehooks": "^2.4.1",
+    "@umijs/max": "^4.7.18",
+    "ahooks": "^3.10.0",
+    "antd": "^5.4.0",
+    "dayjs": "^1.11.23",
+    "echarts": "^6.1.0",
+    "es-toolkit": "^1.52.0",
+    "js-cookie": "^3.0.8",
+    "radash": "^12.1.1",
+    "react-hook-form": "^7.88.0",
+    "react-virtualized": "^9.22.6",
+    "socket.io-client": "^4.8.3",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.3",
+    "@types/react": "^18.0.33",
+    "@types/react-dom": "^18.0.11",
+    "husky": "^9",
+    "lint-staged": "^13.2.0",
+    "prettier": "^2.8.7",
+    "prettier-plugin-organize-imports": "^3.2.2",
+    "prettier-plugin-packagejson": "^2.4.3",
+    "typescript": "^5.0.3"
+  }
+}
