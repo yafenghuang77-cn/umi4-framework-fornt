@@ -1,5 +1,6 @@
 import { defineConfig } from '@umijs/max';
 import { join } from 'node:path';
+
 import defaultSettings from './defaultSettings';
 import routers from './routes';
 
@@ -16,14 +17,16 @@ export default defineConfig({
       variant: 'filled',
       theme: {
         token: {
-          fontFamily: 'AlibabaSans, sans-serif',
+          fontFamily:
+            '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif',
+          borderRadius: 6,
         },
       },
     },
   },
   access: {},
   model: {},
-  initialState: {},
+  initialState: { loading: '@/components/PageSkeleton/InitialLoading' },
   request: {},
   layout: {
     locale: true,
@@ -33,7 +36,8 @@ export default defineConfig({
   npmClient: 'pnpm',
   base: PUBLIC_PATH,
   publicPath: PUBLIC_PATH,
-  title: 'AI调研宝',
+  title: 'Ant Design Pro',
+  metas: [{ name: 'viewport', content: 'width=device-width, initial-scale=1' }],
   ignoreMomentLocale: true,
   manifest: {},
   define: {},
@@ -53,7 +57,7 @@ export default defineConfig({
     default: 'zh-CN',
     antd: true,
     // default true, when it is true, will use `navigator.language` overwrite default
-    baseNavigator: true,
+    baseNavigator: false,
   },
   reactQuery: {},
   analytics: {

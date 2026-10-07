@@ -1,20 +1,23 @@
-import type { ProLayoutProps } from '@ant-design/pro-components';
+import type { ProLayoutProps, ProSettings } from '@ant-design/pro-components';
 
 /**
  * @name
  */
-const Settings: ProLayoutProps & {
-  logo?: string;
-} = {
+const Settings: ProSettings &
+  Pick<ProLayoutProps, 'siderWidth' | 'splitMenus' | 'token'> & {
+    logo?: string;
+  } = {
   navTheme: 'light',
   colorPrimary: '#1677ff',
   layout: 'mix',
   contentWidth: 'Fluid',
-  fixedHeader: false,
+  fixedHeader: true,
   fixSiderbar: true,
+  splitMenus: false,
+  siderWidth: 256,
   colorWeak: false,
   title: 'Ant Design Pro',
-  logo: 'https://gw.alipayobjects.com/zos/rmsportal/KDpgvguMpGfqaHPjicRK.svg',
+  logo: '/framework/logo.svg',
   iconfontUrl: '',
   token: {
     // 参见ts声明，demo 见文档，通过token 修改样式

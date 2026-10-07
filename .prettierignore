@@ -1,3 +1,7 @@
 node_modules
-.umi
-.umi-production
+**/.umi*
+dist
+coverage
+.turbopack
+pnpm-lock.yaml
+.pnpm-store

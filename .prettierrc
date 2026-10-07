@@ -1,8 +1,13 @@
 {
-  "printWidth": 80,
+  "printWidth": 100,
+  "tabWidth": 2,
+  "useTabs": false,
   "singleQuote": true,
+  "jsxSingleQuote": false,
+  "semi": true,
   "trailingComma": "all",
+  "arrowParens": "always",
+  "endOfLine": "lf",
   "proseWrap": "never",
-  "overrides": [{ "files": ".prettierrc", "options": { "parser": "json" } }],
-  "plugins": ["prettier-plugin-organize-imports", "prettier-plugin-packagejson"]
+  "plugins": ["prettier-plugin-packagejson"]
 }

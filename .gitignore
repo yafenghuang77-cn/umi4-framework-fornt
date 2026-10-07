@@ -12,3 +12,8 @@
 /.mfsu
 .swc
 .turbopack
+
+/.pnpm-store
+/coverage
+/.eslintcache
+/.prettiercache
