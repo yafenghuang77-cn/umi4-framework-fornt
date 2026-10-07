@@ -1,15 +1,58 @@
+import { type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 
 import { BookOutlined, SettingOutlined, UserOutlined } from '@ant-design/icons';
 import { SettingDrawer } from '@ant-design/pro-components';
-import { history, type RequestConfig, type RunTimeLayoutConfig, SelectLang } from '@umijs/max';
+import {
+  history,
+  type RequestConfig,
+  type RunTimeLayoutConfig,
+  type RuntimeReactQueryType,
+  SelectLang,
+} from '@umijs/max';
 import { Dropdown, Tooltip } from 'antd';
+
+import NetworkStatus from '@/components/NetworkStatus';
+import { retryTimedOutQuery } from '@/utils/requestRetry';
 
 import defaultSettings from '../config/defaultSettings';
 
 export const request: RequestConfig = {
   baseURL: process.env.API_BASE_URL,
+  timeout: 5 * 1000,
 };
+
+export const reactQuery: RuntimeReactQueryType = {
+  queryClient: {
+    defaultOptions: {
+      queries: {
+        // 新鲜期内复用缓存；无人订阅的缓存保留 5 分钟。
+        staleTime: 60 * 1000,
+        gcTime: 5 * 60 * 1000,
+        refetchOnWindowFocus: false,
+        // 重新挂载或恢复网络时，仅刷新已过期的查询。
+        refetchOnMount: true,
+        refetchOnReconnect: true,
+        // 仅超时自动重试，最多额外请求 5 次。
+        retry: retryTimedOutQuery,
+        retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30 * 1000),
+      },
+      mutations: {
+        // 避免新增、更新等提交因自动重试而重复执行。
+        retry: false,
+      },
+    },
+  },
+};
+
+export function rootContainer(container: ReactNode) {
+  return (
+    <>
+      <NetworkStatus />
+      {container}
+    </>
+  );
+}
 
 export async function getInitialState() {
   return { name: 'ProUser', settings: defaultSettings };

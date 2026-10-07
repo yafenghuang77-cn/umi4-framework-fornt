@@ -77,7 +77,8 @@ export default defineConfig({
     // default true, when it is true, will use `navigator.language` overwrite default
     baseNavigator: false,
   },
-  reactQuery: {},
+  // Provider 由 Umi 注册；缓存与重试策略在 src/app.tsx 中配置。
+  reactQuery: { queryClient: true, devtool: false },
   analytics: {
     ga_v2: 'G-59NF1VHHPF',
   },
