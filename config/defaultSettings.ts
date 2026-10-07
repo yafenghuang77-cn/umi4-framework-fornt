@@ -16,7 +16,7 @@ const Settings: ProSettings &
   splitMenus: false,
   siderWidth: 256,
   colorWeak: false,
-  title: 'Ant Design Pro',
+  title: 'Ant Design Pro 管理系统模版',
   logo: '/framework/logo.svg',
   iconfontUrl: '',
   token: {

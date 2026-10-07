@@ -53,7 +53,7 @@ export default defineConfig({
   npmClient: 'pnpm',
   base: PUBLIC_PATH,
   publicPath: PUBLIC_PATH,
-  title: 'Ant Design Pro',
+  title: 'Ant Design Pro 管理系统模版',
   metas: [{ name: 'viewport', content: 'width=device-width, initial-scale=1' }],
   ignoreMomentLocale: true,
   manifest: {},

@@ -1,84 +1,143 @@
-# Ant Design Pro 布局骨架
+# Umi Max 后台管理框架
 
-基于现有 Umi Max 项目，实现 Ant Design Pro V6 风格的混合布局与欢迎页。
+## 项目介绍
 
-## 启动
+本项目是基于 Umi Max 4、React 19、TypeScript、Ant Design 6 和 ProComponents 3 的后台管理模板，可用于搭建企业内部管理系统。
+
+项目已提供混合布局、顶部导航、侧栏菜单、欢迎页、加载骨架屏、语言切换和布局设置，以及 UAT、PRE、PROD 三套环境配置。用户管理和权限管理已具备页面结构，业务数据、登录认证和实际权限控制需根据项目需求接入。
+
+接口请求使用 Umi request，服务端数据缓存使用 React Query；代码规范由 ESLint、Prettier 和 Stylelint 统一管理。更多依赖用途见 [插件与依赖说明](docs/插件与依赖说明.md)。
+
+## 开发准备
+
+- Node.js：22.22.1 或更高版本，满足当前提交检查工具的版本要求。
+- 包管理工具：pnpm。
+- 在项目根目录执行下文命令，即 `package.json` 所在目录。
+
+首次使用时安装依赖：
 
 ```bash
 pnpm install
+```
+
+安装过程中会自动执行 `max setup`，生成 Umi 所需的临时文件。
+
+## 启动项目
+
+### 默认启动
+
+```bash
 pnpm dev
 ```
 
-访问 http://localhost:8000/framework/welcome/ 。生产构建执行 `pnpm build`，部署目录为 `dist/`，部署前缀为 `/framework/`。
+默认启动 **UAT 测试环境**，也可以使用 `pnpm start`。
 
-## 已实现
+启动后访问 [http://localhost:8000/framework/welcome/](http://localhost:8000/framework/welcome/)。如果端口被占用，以终端输出的实际地址为准。开发服务支持热更新，修改代码后可在浏览器查看效果；停止服务按 `Ctrl+C`。
 
-- ProLayout 顶部导航、可折叠侧栏、多级菜单、用户菜单和语言切换。
-- 欢迎页的 2:1 内容布局、官方 Cheatsheet 横幅与资源入口；窄屏自动切换为单列。
-- 首屏静态骨架屏、初始化骨架屏和路由懒加载骨架屏。
-- SettingDrawer 布局设置、404 页面及业务页面占位。
-- 用户账号与权限管理采用业务页面结构，不提供模拟账号或角色数据；权限资源直接读取实际路由配置。旧页面地址继续通过重定向访问。
+### 指定环境启动
 
-## 主要文件
+| 环境          | 启动命令        |
+| ------------- | --------------- |
+| UAT 测试环境  | `pnpm dev:uat`  |
+| PRE 预发环境  | `pnpm dev:pre`  |
+| PROD 生产环境 | `pnpm dev:prod` |
 
-- `config/routes.ts`：逐项配置路由和菜单；侧栏保留首页、系统管理、用户管理三个一级菜单；配置管理包含基础配置、通知配置两个三级菜单。个人中心与个人设置通过顶部用户菜单访问。
-- `config/defaultSettings.ts`：布局默认设置。
-- `src/app.tsx`：顶部操作、用户菜单和设置抽屉。
-- `src/pages/Home/`：欢迎页。
-- `src/pages/Users/`：账号目录和筛选区。
-- `src/pages/Permissions/`：角色管理与权限资源目录。
-- `src/components/PageSkeleton/`、`src/loading.tsx`、`public/scripts/loading.js`：三个加载阶段的骨架屏。
+这些命令均启动本地开发服务，区别在于加载的业务环境配置。
 
-使用 Ant Design 6 和 ProComponents `3.1.15-5`。ProComponents 3 是官方 Ant Design Pro V6 使用的组件系列，目前 npm 将该版本标记为 beta。设置抽屉用于预览，默认配置通过 `config/defaultSettings.ts` 保存。
+## 项目打包
 
-参考：[官方预览](https://preview.pro.ant.design/welcome/)、[官方仓库](https://github.com/ant-design/ant-design-pro)。
-
-## 代码规范
-
-ESLint 保留 `extends: require.resolve('@umijs/max/eslint')` 作为基础规范，在原 `.eslintrc.js` 中叠加项目规则。Prettier、Stylelint 使用项目根目录的独立配置。提交钩子通过 `pnpm exec lint-staged` 检查暂存文件。
-
-- `.eslintrc.js`：保留 Umi Max 基础规则并扩展项目规则。JavaScript 推荐规则、TypeScript 推荐规则与类型导入、禁止显式 any、未使用变量、React JSX、Hooks 和可访问性检查。自动导入顺序：副作用导入 → React → 第三方库 → `@/` 项目别名 → 相对路径 → 纯类型导入；组内排序并自动修复。
-- `.prettierrc`：2 空格、单引号、分号、尾逗号、100 字符宽度、LF 换行。导入排序仅由 ESLint 负责。
-- `.stylelintrc.js`：CSS/Less 标准规则、重复选择器和重复属性检查，支持 Tailwind 指令。允许 Ant Design 类名，不强制跨组件的选择器优先级顺序。
-- 使用 ESLint 8.57.1 与 TypeScript 6.0.x，`pnpm typecheck` 直接调用 `tsc --noEmit`。
-- `tsconfig.json` 保留 Umi 的 `extends`，补充严格模式、函数返回路径检查、禁止 switch 分支意外贯穿和文件名大小写一致性检查。未使用变量继续交给 ESLint。
+### 默认打包
 
 ```bash
-pnpm lint         # 全量代码与样式检查
-pnpm lint:fix     # 自动修复代码与样式
-pnpm format       # 全量格式化
-pnpm format:check # 格式检查
-pnpm typecheck    # TypeScript 类型检查
+pnpm build
 ```
 
-风格参考 [Ant Design 配置](https://github.com/ant-design/ant-design/blob/master/biome.json) 与 [Umi Fabric](https://github.com/umijs/fabric)，采用严格但实用的项目规则；保留 ESLint 作为检查工具。ESLint 8 直接读取 `.eslintrc.js`，已删除 `eslint.config.mjs`。使用 Umi 提供的 `UMI_UTLINT_MIGRATE` 开关跳过旧插件解析补丁，命令行与编辑器统一从项目根目录解析插件。Umi 中已删除的旧规则以对应的新版规则替代。
+**默认打包 UAT 测试环境。** 打包完成后，静态文件输出到项目根目录的 `dist/`。
 
-## 环境配置
+### 指定环境打包
 
-使用 Umi 原生 `UMI_ENV` 加载对应的环境配置文件，并与 `config/config.ts` 公共配置合并，没有额外安装环境插件。`NODE_ENV` 继续由 Umi 管理。
+| 环境          | 打包命令          | 配置文件                      |
+| ------------- | ----------------- | ----------------------------- |
+| UAT 测试环境  | `pnpm build:uat`  | `config/config.uat.ts`        |
+| PRE 预发环境  | `pnpm build:pre`  | `config/config.pre.ts`        |
+| PROD 生产环境 | `pnpm build:prod` | `config/config.production.ts` |
 
-| 环境      | 启动            | 打包              | UMI_ENV      |
-| --------- | --------------- | ----------------- | ------------ |
-| UAT 测试  | `pnpm dev:uat`  | `pnpm build:uat`  | `uat`        |
-| PRE 预发  | `pnpm dev:pre`  | `pnpm build:pre`  | `pre`        |
-| PROD 生产 | `pnpm dev:prod` | `pnpm build:prod` | `production` |
+生产发布时执行：
 
-`pnpm dev`、`pnpm start` 默认启动 UAT；`pnpm build` 默认打包 PROD。全部打包命令使用生产优化，产物输出到 `dist/`，部署前缀保持 `/framework/`。
+```bash
+pnpm build:prod
+```
 
-Umi 保留了 `dev`、`prod`、`test` 配置名，因此生产脚本设置 `UMI_ENV=production`，浏览器中的业务标识仍为 `prod`。不要创建仅用于业务生产环境的 `config.prod.ts`，否则它会在 UAT/PRE 的生产构建中一起加载。
+所有打包命令都会执行 `max build`，生成经过构建优化的静态资源。发布前应确认对应环境的接口地址已配置正确。
 
-每个环境独立配置业务变量：
+## 接口与环境配置
 
-- `config/config.uat.ts`：UAT，`APP_ENV=uat`，接口地址可用 `UAT_API_BASE_URL` 覆盖。
-- `config/config.pre.ts`：PRE，`APP_ENV=pre`，接口地址可用 `PRE_API_BASE_URL` 覆盖。
-- `config/config.production.ts`：PROD，`APP_ENV=prod`，接口地址可用 `PROD_API_BASE_URL` 覆盖。
+各环境的接口地址默认是 `/`，使用同源请求。可以直接修改对应环境配置文件，或在项目根目录创建 `.env.local` 覆盖地址：
 
-实际接口地址确定后，修改对应文件中的 `/` 默认地址即可，当前使用同源请求。`config/config.ts` 引用 UAT 的变量作为未指定环境时的默认值；指定 `UMI_ENV` 后，Umi 原生合并对应文件并覆盖默认值。启动控制台会输出当前环境，例如 `[启动环境] UAT 测试环境（uat）`。
+```dotenv
+UAT_API_BASE_URL=https://uat-api.example.com
+PRE_API_BASE_URL=https://pre-api.example.com
+PROD_API_BASE_URL=https://api.example.com
+```
 
-`.env` 只放公共进程变量；个人覆盖写入被 Git 忽略的 `.env.local`，例如 `PRE_API_BASE_URL=https://实际接口域名`。Umi 原生加载时 `.env.local` 覆盖 `.env`。Umi 不会按环境自动加载 `.env.uat`、`.env.pre`、`.env.prod`，因此采用官方支持的 `config.${UMI_ENV}.ts` 机制。
+以上域名为示例，使用时替换为实际接口地址。`.env.local` 已被 Git 忽略，适合保存个人开发配置；`.env` 用于公共进程变量。
 
-选中的地址通过 `define` 注入 `process.env.API_BASE_URL` 并接入 Umi 全局 request；`process.env.APP_ENV` 为 `uat`、`pre` 或 `prod`。这些变量在启动或打包时确定，修改后需重新启动或打包。
+启动和打包脚本通过 `UMI_ENV` 选择环境：UAT 对应 `uat`，PRE 对应 `pre`，PROD 对应 `production`。浏览器中的 `process.env.APP_ENV` 分别为 `uat`、`pre`、`prod`，接口地址通过 `process.env.API_BASE_URL` 提供给全局 request。
 
-脚本的变量写法适用于当前 macOS/Linux 开发环境。Windows cmd 可先执行 `set UMI_ENV=uat`，再执行 `pnpm exec max dev`；打包同理，无需额外插件。
+环境变量在启动或打包时确定，修改后需重新启动或打包。注入浏览器代码的变量不要包含密钥。
 
-参考：[Umi 环境变量说明](https://umijs.org/docs/guides/env-variables/)。
+### Windows 启动与打包
+
+项目脚本中的环境变量赋值适用于 macOS / Linux。Windows cmd 可以先设置环境，再执行 Umi 命令。例如启动 UAT：
+
+```bat
+set UMI_ENV=uat
+pnpm exec max dev
+```
+
+打包生产环境：
+
+```bat
+set UMI_ENV=production
+pnpm exec max build
+```
+
+## 部署说明
+
+将 `dist/` 中的构建产物部署到静态服务器，访问前缀为 `/framework/`。
+
+- `config/config.ts` 中的 `base` 和 `publicPath` 均为 `/framework/`，服务器需要将静态资源映射到该路径。
+- 项目使用 browser history 路由，刷新或直接访问业务页面时，服务器需回退到应用入口 HTML。
+- 如需修改部署前缀，应同步修改配置和代码中的 Logo、图片、加载脚本等资源路径。
+- 当前未启用开发代理，跨域接口需配置 CORS 或按需接入代理。
+
+## 主要目录
+
+```text
+config/                 # 公共配置、环境配置、菜单路由与布局设置
+src/
+  app.tsx               # 应用初始化、布局和全局请求配置
+  access.ts             # 权限定义入口
+  pages/                # 欢迎页、用户管理、权限管理等页面
+  components/           # 公共组件、骨架屏和网络状态提示
+  models/               # 全局共享状态
+  locales/              # 中英文语言文件
+  utils/                # 通用工具函数
+  global.less           # 全局样式
+public/                 # 静态资源
+docs/                  # 依赖与插件说明
+```
+
+新增页面时，在 `src/pages/` 创建页面组件，再到 `config/routes.ts` 注册路由和菜单。布局默认设置位于 `config/defaultSettings.ts`。
+
+## 常用检查命令
+
+```bash
+pnpm lint          # 代码与样式检查
+pnpm lint:fix      # 自动修复代码与样式
+pnpm typecheck     # TypeScript 类型检查
+pnpm format        # 格式化项目文件
+pnpm format:check  # 检查文件格式
+```
+
+如果类型检查提示缺少 `src/.umi/tsconfig.json`，先执行 `pnpm setup` 生成临时文件，再重新检查。
