@@ -10,6 +10,13 @@ export default {
       pathRewrite: { '^/api': '' },
     },
   },
+  uat: {
+    '/api/': {
+      target: 'http://pre-api.example.com',
+      changeOrigin: true,
+      pathRewrite: { '^/api': '' },
+    },
+  },
   pre: {
     '/api/': {
       target: 'http://pre-api.example.com',
@@ -17,7 +24,7 @@ export default {
       pathRewrite: { '^/api': '' },
     },
   },
-  prod: {
+  production: {
     '/api/': {
       target: 'http://api.example.com',
       changeOrigin: true,

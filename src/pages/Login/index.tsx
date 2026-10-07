@@ -6,21 +6,36 @@ import {
   SafetyCertificateOutlined,
   UserOutlined,
 } from '@ant-design/icons';
+import { history, useModel } from '@umijs/max';
 import { Alert, Button, Form, Input } from 'antd';
+
+import { login, type LoginParams } from '@/services/auth';
+import { setToken } from '@/utils/request/token';
 
 import styles from './index.less';
 
-interface LoginValues {
-  username: string;
-  password: string;
-}
-
 export default function LoginPage() {
   const [loginError, setLoginError] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const { setInitialState } = useModel('@@initialState');
 
-  const handleLogin = (_values: LoginValues) => {
-    // TODO: 确定登录协议后，在这里调用接口、保存 Token 并跳转到首页。
-    setLoginError(true);
+  const handleLogin = async (values: LoginParams) => {
+    if (submitting) {
+      return;
+    }
+
+    setSubmitting(true);
+    setLoginError(false);
+    try {
+      const result = await login(values);
+      setToken(result.token);
+      await setInitialState((state) => ({ ...state!, name: result.name }));
+      history.replace('/welcome');
+    } catch {
+      setLoginError(true);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -84,7 +99,7 @@ export default function LoginPage() {
               <Alert type="error" showIcon title="暂时无法登录，请联系管理员。" />
             </div>
           )}
-          <Form<LoginValues>
+          <Form<LoginParams>
             name="login"
             layout="vertical"
             size="large"
@@ -114,7 +129,13 @@ export default function LoginPage() {
                 autoComplete="current-password"
               />
             </Form.Item>
-            <Button type="primary" htmlType="submit" block className={styles.submit}>
+            <Button
+              type="primary"
+              htmlType="submit"
+              block
+              loading={submitting}
+              className={styles.submit}
+            >
               登录 <ArrowRightOutlined aria-hidden="true" />
             </Button>
           </Form>

@@ -6,7 +6,7 @@
     "build:pre": "UMI_ENV=pre max build",
     "build:prod": "UMI_ENV=production max build",
     "build:uat": "UMI_ENV=uat max build",
-    "dev": "pnpm dev:uat",
+    "dev": "UMI_ENV=dev max dev",
     "dev:pre": "UMI_ENV=pre max dev",
     "dev:prod": "UMI_ENV=production max dev",
     "dev:uat": "UMI_ENV=uat max dev",

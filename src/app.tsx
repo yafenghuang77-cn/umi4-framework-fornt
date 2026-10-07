@@ -1,7 +1,13 @@
 import { type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 
-import { DownOutlined, LogoutOutlined, SettingOutlined, UserOutlined } from '@ant-design/icons';
+import {
+  DownOutlined,
+  GlobalOutlined,
+  LogoutOutlined,
+  SettingOutlined,
+  UserOutlined,
+} from '@ant-design/icons';
 import {
   history,
   type RunTimeLayoutConfig,
@@ -111,6 +117,7 @@ export const layout: RunTimeLayoutConfig = ({ initialState }) => ({
     <BrandSwitcher key="brand" />,
     <SelectLang
       key="language"
+      icon={<GlobalOutlined />}
       globalIconClassName="header-language"
       style={{ fontSize: 16, padding: 0 }}
     />,

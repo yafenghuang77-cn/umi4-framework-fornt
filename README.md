@@ -4,7 +4,7 @@
 
 本项目是基于 Umi Max 4、React 19、TypeScript、Ant Design 6 和 ProComponents 3 的后台管理模板，可用于搭建企业内部管理系统。
 
-项目已提供混合布局、顶部导航、侧栏菜单、欢迎页、加载骨架屏、语言切换和布局设置，以及 UAT、PRE、PROD 三套环境配置。用户管理和权限管理已具备页面结构，业务数据、登录认证和实际权限控制需根据项目需求接入。
+项目已提供混合布局、顶部导航、侧栏菜单、欢迎页、加载骨架屏、语言切换和布局设置，以及 DEV 本地开发、UAT、PRE、PROD 四套环境配置。用户管理和权限管理已具备页面结构，业务数据、登录认证和实际权限控制需根据项目需求接入。
 
 接口请求使用 Umi request，服务端数据缓存使用 React Query；代码规范由 ESLint、Prettier 和 Stylelint 统一管理。更多依赖用途见 [插件与依赖说明](docs/插件与依赖说明.md)。
 
@@ -30,11 +30,15 @@ pnpm install
 pnpm dev
 ```
 
-默认启动 **UAT 测试环境**，也可以使用 `pnpm start`。
+默认启动 **DEV 本地开发环境**，也可以使用 `pnpm start`。
 
 启动后访问 [http://localhost:8000/framework/welcome/](http://localhost:8000/framework/welcome/)。如果端口被占用，以终端输出的实际地址为准。开发服务支持热更新，修改代码后可在浏览器查看效果；停止服务按 `Ctrl+C`。
 
-### 指定环境启动
+### 本地开发环境
+
+`pnpm dev` 和 `pnpm start` 使用 `config/config.dev.ts`，复用 UAT 的接口配置（包括 `UAT_API_BASE_URL`）与本地代理，仅将 `APP_ENV` 标记为 `dev`。React Query Devtools 只在 DEV 开发模式启用。
+
+### 按环境启动排查
 
 | 环境          | 启动命令        |
 | ------------- | --------------- |
@@ -42,7 +46,7 @@ pnpm dev
 | PRE 预发环境  | `pnpm dev:pre`  |
 | PROD 生产环境 | `pnpm dev:prod` |
 
-这些命令均启动本地开发服务，区别在于加载的业务环境配置。
+这些命令启动支持热更新的本地服务，分别加载对应环境的接口配置与代理。排查前请配置实际的 `UAT_API_BASE_URL`、`PRE_API_BASE_URL` 或 `PROD_API_BASE_URL`；使用相对地址时，请在 `config/proxy.ts` 配置对应代理目标。React Query Devtools 仅在 DEV 环境启用。
 
 ## 项目打包
 
@@ -82,16 +86,16 @@ PROD_API_BASE_URL=https://api.example.com
 
 以上域名为示例，使用时替换为实际接口地址。`.env.local` 已被 Git 忽略，适合保存个人开发配置；`.env` 用于公共进程变量。
 
-启动和打包脚本通过 `UMI_ENV` 选择环境：UAT 对应 `uat`，PRE 对应 `pre`，PROD 对应 `production`。浏览器中的 `process.env.APP_ENV` 分别为 `uat`、`pre`、`prod`，接口地址通过 `process.env.API_BASE_URL` 提供给全局 request。
+启动和打包脚本通过 `UMI_ENV` 选择环境：DEV 对应 `dev`，UAT 对应 `uat`，PRE 对应 `pre`，PROD 对应 `production`。浏览器中的 `process.env.APP_ENV` 分别为 `dev`、`uat`、`pre`、`prod`，接口地址通过 `process.env.API_BASE_URL` 提供给全局 request。
 
 环境变量在启动或打包时确定，修改后需重新启动或打包。注入浏览器代码的变量不要包含密钥。
 
 ### Windows 启动与打包
 
-项目脚本中的环境变量赋值适用于 macOS / Linux。Windows cmd 可以先设置环境，再执行 Umi 命令。例如启动 UAT：
+项目脚本中的环境变量赋值适用于 macOS / Linux。Windows cmd 可以先设置环境，再执行 Umi 命令。例如启动本地 DEV：
 
 ```bat
-set UMI_ENV=uat
+set UMI_ENV=dev
 pnpm exec max dev
 ```
 
@@ -109,7 +113,7 @@ pnpm exec max build
 - `config/config.ts` 中的 `base` 和 `publicPath` 均为 `/framework/`，服务器需要将静态资源映射到该路径。
 - 项目使用 browser history 路由，刷新或直接访问业务页面时，服务器需回退到应用入口 HTML。
 - 如需修改部署前缀，应同步修改配置和代码中的 Logo、图片、加载脚本等资源路径。
-- 当前未启用开发代理，跨域接口需配置 CORS 或按需接入代理。
+- DEV 与 UAT 复用本地 `/api/` 代理，默认转发到 `http://localhost:8080`；可在 `config/proxy.ts` 调整。
 
 ## 主要目录
 

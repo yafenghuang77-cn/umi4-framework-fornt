@@ -1,21 +1,22 @@
 import { defineConfig } from '@umijs/max';
 import { join } from 'node:path';
 
-import uatConfig from './config.uat';
+import devConfig from './config.dev';
 import defaultSettings from './defaultSettings';
 import proxy from './proxy';
 import routers from './routes';
 
 const PUBLIC_PATH = '/framework/';
 const environments = {
+  dev: { appEnv: 'dev', label: 'DEV 本地开发环境' },
   uat: { appEnv: 'uat', label: 'UAT 测试环境' },
   pre: { appEnv: 'pre', label: 'PRE 预发环境' },
   production: { appEnv: 'prod', label: 'PROD 生产环境' },
 } as const;
-const umiEnv = process.env.UMI_ENV || 'uat';
+const umiEnv = process.env.UMI_ENV || 'dev';
 
 if (!Object.hasOwn(environments, umiEnv)) {
-  throw new Error(`不支持的 UMI_ENV：${umiEnv}，请使用 uat、pre 或 production`);
+  throw new Error(`不支持的 UMI_ENV：${umiEnv}，请使用 dev、uat、pre 或 production`);
 }
 
 const environment = environments[umiEnv as keyof typeof environments];
@@ -59,8 +60,8 @@ export default defineConfig({
   metas: [{ name: 'viewport', content: 'width=device-width, initial-scale=1' }],
   ignoreMomentLocale: true,
   manifest: {},
-  // 未指定 UMI_ENV 时也默认使用 UAT；指定环境后由 Umi 合并对应配置。
-  define: uatConfig.define,
+  // 未指定 UMI_ENV 时默认使用 DEV；指定环境后由 Umi 合并对应配置。
+  define: devConfig.define,
   exportStatic: {},
   // turbopack: {},
   alias: {
@@ -81,7 +82,10 @@ export default defineConfig({
   },
   // Provider 由 Umi 注册；缓存与重试策略在 src/app.tsx 中配置。
   // 调试面板仅在本地开发命令启用，所有构建环境均关闭。
-  reactQuery: { queryClient: true, devtool: process.env.NODE_ENV === 'development' },
+  reactQuery: {
+    queryClient: true,
+    devtool: umiEnv === 'dev',
+  },
   analytics: {
     ga_v2: 'G-59NF1VHHPF',
   },
