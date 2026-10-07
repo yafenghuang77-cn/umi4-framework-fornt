@@ -8,6 +8,13 @@ export default [
   },
   { path: '/', redirect: '/welcome' },
   {
+    name: '问卷编辑器',
+    icon: 'FormOutlined',
+    path: '/survey/editor',
+    component: './SurveyEditor',
+    layout: false,
+  },
+  {
     name: '首页',
     icon: 'HomeOutlined',
     path: '/welcome',
