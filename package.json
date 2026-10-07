@@ -2,8 +2,14 @@
   "private": true,
   "author": "yafenghuang-cn <shms9061@yumchina.com>",
   "scripts": {
-    "build": "max build",
-    "dev": "max dev",
+    "build": "pnpm build:uat",
+    "build:pre": "UMI_ENV=pre max build",
+    "build:prod": "UMI_ENV=production max build",
+    "build:uat": "UMI_ENV=uat max build",
+    "dev": "pnpm dev:uat",
+    "dev:pre": "UMI_ENV=pre max dev",
+    "dev:prod": "UMI_ENV=production max dev",
+    "dev:uat": "UMI_ENV=uat max dev",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "postinstall": "max setup",
@@ -13,7 +19,7 @@
     "lint:style": "stylelint \"**/*.{css,less}\" --allow-empty-input",
     "prepare": "husky",
     "setup": "max setup",
-    "start": "npm run dev",
+    "start": "pnpm dev",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

@@ -1,10 +1,27 @@
 import { defineConfig } from '@umijs/max';
 import { join } from 'node:path';
 
+import uatConfig from './config.uat';
 import defaultSettings from './defaultSettings';
 import routers from './routes';
 
 const PUBLIC_PATH = '/framework/';
+const environments = {
+  uat: { appEnv: 'uat', label: 'UAT 测试环境' },
+  pre: { appEnv: 'pre', label: 'PRE 预发环境' },
+  production: { appEnv: 'prod', label: 'PROD 生产环境' },
+} as const;
+const umiEnv = process.env.UMI_ENV || 'uat';
+
+if (!Object.hasOwn(environments, umiEnv)) {
+  throw new Error(`不支持的 UMI_ENV：${umiEnv}，请使用 uat、pre 或 production`);
+}
+
+const environment = environments[umiEnv as keyof typeof environments];
+
+if (process.argv[2] === 'dev') {
+  process.stdout.write(`\n[启动环境] ${environment.label}（${environment.appEnv}）\n\n`);
+}
 
 export default defineConfig({
   history: {
@@ -40,7 +57,8 @@ export default defineConfig({
   metas: [{ name: 'viewport', content: 'width=device-width, initial-scale=1' }],
   ignoreMomentLocale: true,
   manifest: {},
-  define: {},
+  // 未指定 UMI_ENV 时也默认使用 UAT；指定环境后由 Umi 合并对应配置。
+  define: uatConfig.define,
   exportStatic: {},
   // turbopack: {},
   alias: {

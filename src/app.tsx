@@ -2,10 +2,14 @@ import { createPortal } from 'react-dom';
 
 import { BookOutlined, SettingOutlined, UserOutlined } from '@ant-design/icons';
 import { SettingDrawer } from '@ant-design/pro-components';
-import { history, type RunTimeLayoutConfig, SelectLang } from '@umijs/max';
+import { history, type RequestConfig, type RunTimeLayoutConfig, SelectLang } from '@umijs/max';
 import { Dropdown, Tooltip } from 'antd';
 
 import defaultSettings from '../config/defaultSettings';
+
+export const request: RequestConfig = {
+  baseURL: process.env.API_BASE_URL,
+};
 
 export async function getInitialState() {
   return { name: 'ProUser', settings: defaultSettings };
