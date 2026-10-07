@@ -15,6 +15,9 @@
 
 /.pnpm-store
 /coverage
+/playwright-report
+/test-results
+/playwright/.cache
 /.eslintcache
 /.prettiercache
 

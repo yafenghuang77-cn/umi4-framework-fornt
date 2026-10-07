@@ -8,6 +8,8 @@
 
 接口请求使用 Umi request，服务端数据缓存使用 React Query；代码规范由 ESLint、Prettier 和 Stylelint 统一管理。更多依赖用途见 [插件与依赖说明](docs/插件与依赖说明.md)。
 
+端到端测试使用 Playwright，执行 `pnpm test:e2e` 自动启动独立测试服务并运行 Chromium 测试。安装、UI 模式、报告和新增用例说明见 [Playwright 测试说明](docs/Playwright测试说明.md)。
+
 ## 开发准备
 
 - Node.js：22.22.1 或更高版本，满足当前提交检查工具的版本要求。
@@ -88,33 +90,7 @@ BUILD_OUTPUT_PATH=framework
 
 每次 build 在所有 HTML 生成后，为 JS、CSS、HTML、SVG、JSON、TXT、XML 生成同名 `.gz` 文件，使用 gzip 级别 9；压缩后更大的小文件不生成 `.gz`。原文件用于不支持 gzip 的客户端及服务器回退，图片、业务 JSON、许可证和路由 HTML 也会保留。可直接上传整个输出目录。此处理使用 Umi 的最终输出路径，因此也支持 `BUILD_OUTPUT_PATH` 的自定义目录。
 
-服务器需要支持静态 gzip。例如 Nginx 在站点配置中启用 `gzip_static on;` 和 `gzip_vary on;`，才会对支持 gzip 的客户端返回预压缩文件；未启用时仍正常返回原文件。浏览器访问地址保持为 `.js`、`.css` 等原始地址，无需添加 `.gz`。
-
-Nginx 示例：将整个 `framework/` 文件夹上传到 `/srv/www/`，替换域名与服务器目录后使用以下站点配置。Nginx 需包含 `http_gzip_static_module` 模块，可通过 `nginx -V` 检查。
-
-```nginx
-server {
-    listen 80;
-    server_name example.com;
-    root /srv/www;
-    include /etc/nginx/mime.types;
-
-    gzip_static on;
-    gzip_vary on;
-
-    # 静态资源不存在时返回 404，避免返回 HTML 导致脚本解析失败。
-    location ~* ^/framework/.*\.(js|css|svg|png|jpg|jpeg|gif|webp|ico|json|txt|xml|woff2?|ttf)$ {
-        try_files $uri =404;
-    }
-
-    # 支持直接访问及刷新前端路由。
-    location /framework/ {
-        try_files $uri $uri/ /framework/index.html;
-    }
-}
-```
-
-部署后用 `curl -I -H 'Accept-Encoding: gzip' https://你的域名/framework/js/loading.js` 验证响应包含 `Content-Encoding: gzip`。示例为 HTTP 站点；已有 HTTPS 站点只需合并 `root`、gzip 和 location 配置。
+完整的上传要求、Nginx 配置、gzip 优先读取与部署验证步骤见 [Nginx 部署说明](docs/Nginx部署说明.md)。
 
 项目沿用 Umi 的路由按需加载，并通过 `utoopack.optimization.packageImports` 优化 ProComponents 的入口导入。原生 `splitChunks` 将 JS 的最小合并目标设为 20 KB、最大合并目标设为 100 KB，每组最多 40 个分包，避免过多碎片。这里的大小是分包算法的参考值，不是最终压缩文件的硬性上限，公共依赖仍可能超过该值；拆分文件也不意味着总下载体积一定减少。以后接入图表、编辑器、PDF 等较重功能时，应在对应路由或使用 `import()` 按需加载，避免在 `app.tsx` 或全局组件中直接引入。
 

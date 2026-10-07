@@ -22,6 +22,13 @@ if (!Object.hasOwn(environments, umiEnv)) {
 const environment = environments[umiEnv as keyof typeof environments];
 const isBuild = process.argv[2] === 'build';
 
+// Umi 加载 .env.local 后会覆盖 PORT，测试服务在这里使用独立端口。
+if (process.argv[2] === 'dev' && process.env.PLAYWRIGHT_TEST === '1') {
+  process.env.PORT = process.env.PLAYWRIGHT_PORT || '18101';
+  process.env.STRICT_PORT = process.env.PORT;
+  process.env.HOST = '127.0.0.1';
+}
+
 if (process.argv[2] === 'dev') {
   process.stdout.write(`\n[启动环境] ${environment.label}（${environment.appEnv}）\n\n`);
 }
