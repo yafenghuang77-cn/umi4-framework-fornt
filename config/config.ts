@@ -3,6 +3,7 @@ import { join } from 'node:path';
 
 import uatConfig from './config.uat';
 import defaultSettings from './defaultSettings';
+import proxy from './proxy';
 import routers from './routes';
 
 const PUBLIC_PATH = '/framework/';
@@ -43,6 +44,7 @@ export default defineConfig({
   },
   access: {},
   model: {},
+  dva: {},
   initialState: { loading: '@/components/PageSkeleton/InitialLoading' },
   request: {},
   layout: {
@@ -78,7 +80,8 @@ export default defineConfig({
     baseNavigator: false,
   },
   // Provider 由 Umi 注册；缓存与重试策略在 src/app.tsx 中配置。
-  reactQuery: { queryClient: true, devtool: false },
+  // 调试面板仅在本地开发命令启用，所有构建环境均关闭。
+  reactQuery: { queryClient: true, devtool: process.env.NODE_ENV === 'development' },
   analytics: {
     ga_v2: 'G-59NF1VHHPF',
   },
@@ -112,4 +115,6 @@ export default defineConfig({
     },
   },
   requestRecord: {},
+  // 本地开发代理配置
+  proxy: proxy[umiEnv as keyof typeof proxy] || proxy.dev,
 });

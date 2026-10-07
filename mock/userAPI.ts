@@ -10,15 +10,16 @@ const users = [
 export default {
   'GET /api/v1/queryUserList': (_req: unknown, res: MockResponse) => {
     res.json({
-      success: true,
+      code: 0,
       data: { list: users },
-      errorCode: 0,
+      messages: '查询成功',
     });
   },
   'PUT /api/v1/user/': (_req: unknown, res: MockResponse) => {
     res.json({
-      success: true,
-      errorCode: 0,
+      code: 0,
+      data: null,
+      messages: '更新成功',
     });
   },
 };

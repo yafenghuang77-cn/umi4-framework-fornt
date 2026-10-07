@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="img">
+  <title>LS 简化品牌标识</title>
+  <circle cx="12" cy="12" r="11" fill="#087a62"/>
+  <path d="M5 12h14c-1 5-3 7-7 7s-6-2-7-7" fill="#fff"/>
+  <path d="m9 5-1 4m5-4-1 4m5-4-1 4" stroke="#f0cc7b" stroke-width="1.5" stroke-linecap="round"/>
+</svg>

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="img">
+  <title>AA 简化品牌标识</title>
+  <rect x="1" y="1" width="22" height="22" rx="6" fill="#fff0e8"/>
+  <circle cx="12" cy="12" r="8" fill="none" stroke="#e86b39" stroke-width="2"/>
+  <circle cx="12" cy="12" r="4.5" fill="none" stroke="#e86b39" stroke-width="1.5"/>
+  <path d="M11 11h2v2h-2z" fill="#e86b39"/>
+</svg>

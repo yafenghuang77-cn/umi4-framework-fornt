@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="img">
+  <title>HJH 简化品牌标识</title>
+  <rect x="1" y="1" width="22" height="22" rx="6" fill="#252525"/>
+  <path d="M6 11h12v3a5 5 0 0 1-5 5h-2a5 5 0 0 1-5-5z" fill="#d8b477"/>
+  <path d="M5 9h14M4 13h2m12 0h2M10 6h4" stroke="#d8b477" stroke-width="2" stroke-linecap="round"/>
+</svg>

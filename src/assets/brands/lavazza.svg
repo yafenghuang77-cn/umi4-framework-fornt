@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="img">
+  <title>LAVAZZA 简化品牌标识</title>
+  <rect x="1" y="1" width="22" height="22" rx="6" fill="#0b2851"/>
+  <path d="M8 6v12h9" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="square"/>
+  <path d="m14 6 3 6h-6z" fill="#b6cee9"/>
+</svg>

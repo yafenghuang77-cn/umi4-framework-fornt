@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="img">
+  <title>TACO 简化品牌标识</title>
+  <rect x="1" y="1" width="22" height="22" rx="6" fill="#f1eafa"/>
+  <path d="M6 17h12l-2-3V9a4 4 0 0 0-8 0v5z" fill="#682a8e"/>
+  <path d="M10 19h4" stroke="#682a8e" stroke-width="2" stroke-linecap="round"/>
+  <path d="M10 9a2 2 0 0 1 2-2" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
+</svg>

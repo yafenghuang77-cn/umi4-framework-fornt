@@ -1,26 +1,24 @@
 import { type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 
-import { BookOutlined, SettingOutlined, UserOutlined } from '@ant-design/icons';
-import { SettingDrawer } from '@ant-design/pro-components';
+import { DownOutlined, LogoutOutlined, SettingOutlined, UserOutlined } from '@ant-design/icons';
 import {
   history,
-  type RequestConfig,
   type RunTimeLayoutConfig,
   type RuntimeReactQueryType,
   SelectLang,
 } from '@umijs/max';
-import { Dropdown, Tooltip } from 'antd';
+import { Avatar, Dropdown } from 'antd';
 
+import BrandSwitcher from '@/components/BrandSwitcher';
+import LayoutSettings from '@/components/LayoutSettings';
 import NetworkStatus from '@/components/NetworkStatus';
+import { redirectToLogin, requestConfig } from '@/utils/request';
+import { removeToken } from '@/utils/request/token';
 import { retryTimedOutQuery } from '@/utils/requestRetry';
+import { loadPersistedSettings } from '@/utils/settings';
 
-import defaultSettings from '../config/defaultSettings';
-
-export const request: RequestConfig = {
-  baseURL: process.env.API_BASE_URL,
-  timeout: 5 * 1000,
-};
+export const request = requestConfig;
 
 export const reactQuery: RuntimeReactQueryType = {
   queryClient: {
@@ -55,10 +53,10 @@ export function rootContainer(container: ReactNode) {
 }
 
 export async function getInitialState() {
-  return { name: 'ProUser', settings: defaultSettings };
+  return { name: 'ProUser', settings: loadPersistedSettings() };
 }
 
-export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) => ({
+export const layout: RunTimeLayoutConfig = ({ initialState }) => ({
   ...initialState?.settings,
   logo: '/framework/logo.svg',
   menu: { locale: false, defaultOpenAll: false },
@@ -67,8 +65,9 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
     style: { backgroundColor: '#e6f4ff', color: '#1677ff' },
     title: initialState?.name || 'ProUser',
     size: 'small',
-    render: (_, avatar) => (
+    render: () => (
       <Dropdown
+        trigger={['click']}
         menu={{
           items: [
             {
@@ -81,52 +80,45 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
               icon: <SettingOutlined />,
               label: '个人设置',
             },
+            { type: 'divider' },
+            {
+              key: 'logout',
+              icon: <LogoutOutlined />,
+              label: '退出登录',
+              danger: true,
+            },
           ],
-          onClick: ({ key }) => history.push(key),
+          onClick: ({ key }) => {
+            if (key === 'logout') {
+              removeToken();
+              redirectToLogin();
+              return;
+            }
+
+            history.push(key);
+          },
         }}
       >
         <button type="button" className="header-avatar" aria-label="用户菜单">
-          {avatar}
+          <Avatar size={26} icon={<UserOutlined />} className="header-user-icon" />
+          <span className="header-user-name">{initialState?.name || 'ProUser'}</span>
+          <DownOutlined className="header-user-chevron" aria-hidden="true" />
         </button>
       </Dropdown>
     ),
   },
   actionsRender: () => [
-    <Tooltip key="docs" title="使用文档">
-      <a
-        className="header-action"
-        href="https://pro.ant.design/docs/getting-started"
-        target="_blank"
-        rel="noreferrer"
-        aria-label="使用文档"
-      >
-        <BookOutlined />
-      </a>
-    </Tooltip>,
-    <SelectLang key="language" />,
+    <BrandSwitcher key="brand" />,
+    <SelectLang
+      key="language"
+      globalIconClassName="header-language"
+      style={{ fontSize: 16, padding: 0 }}
+    />,
   ],
   childrenRender: (children) => (
     <>
       <div className="workspace-page">{children}</div>
-      {typeof document !== 'undefined' &&
-        createPortal(
-          <SettingDrawer
-            disableUrlParams
-            settings={initialState?.settings}
-            onSettingChange={(settings) =>
-              setInitialState((state) => ({
-                ...state,
-                name: state?.name || 'ProUser',
-                settings: {
-                  ...defaultSettings,
-                  ...state?.settings,
-                  ...settings,
-                },
-              }))
-            }
-          />,
-          document.body,
-        )}
+      {typeof document !== 'undefined' && createPortal(<LayoutSettings />, document.body)}
     </>
   ),
 });

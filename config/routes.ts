@@ -1,6 +1,12 @@
 export default [
+  {
+    name: '登录',
+    path: '/user/login',
+    component: './Login',
+    layout: false,
+    hideInMenu: true,
+  },
   { path: '/', redirect: '/welcome' },
-  { path: '/home', redirect: '/welcome' },
   {
     name: '首页',
     icon: 'HomeOutlined',
@@ -52,18 +58,14 @@ export default [
     path: '/account/center',
     component: './Placeholder',
     hideInMenu: true,
+    layout: false,
   },
   {
     name: '个人设置',
     path: '/account/settings',
     component: './Placeholder',
     hideInMenu: true,
+    layout: false,
   },
-  { path: '/admin/access', redirect: '/admin/permissions' },
-  { path: '/list', redirect: '/users/accounts' },
-  { path: '/list/table-list', redirect: '/users/accounts' },
-  { path: '/list/card-list', redirect: '/users/groups' },
-  { path: '/access', redirect: '/admin/permissions' },
-  { path: '/table', redirect: '/users/accounts' },
   { path: '*', component: './NotFound', hideInMenu: true },
 ];
