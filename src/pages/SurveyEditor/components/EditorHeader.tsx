@@ -6,7 +6,7 @@ import {
 } from '@ant-design/icons';
 import { Button, Divider, Flex, Input, Layout, Tag } from 'antd';
 
-import styles from '../index.less';
+import styles from '../styles/EditorHeader.less';
 
 import type { EditorMode } from '../types';
 

@@ -1,0 +1,14 @@
+.stylePage {
+  display: grid;
+  grid-template-columns: 48% minmax(0, 1fr);
+  flex: 1;
+  min-height: 0;
+  background: #fff;
+}
+
+@media (max-width: 760px) {
+  .stylePage {
+    grid-template-columns: 1fr;
+    overflow-y: auto;
+  }
+}

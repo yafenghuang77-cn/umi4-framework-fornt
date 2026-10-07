@@ -1,0 +1,53 @@
+.header {
+  height: 44px;
+  padding: 0 16px;
+  background: #f7f8fa;
+  border-bottom: 1px solid #edf0f3;
+  line-height: normal;
+  flex-shrink: 0;
+}
+
+.headerRow {
+  height: 100%;
+
+  :global(.ant-input) {
+    width: 220px;
+  }
+
+  :global(.ant-btn) {
+    padding-inline: 0;
+    color: #747f90;
+  }
+}
+
+.badge {
+  margin-inline: auto 0;
+  border-radius: 18px;
+  font-weight: 600;
+}
+
+.toolbar {
+  height: 54px;
+  padding-inline: 16px;
+  border-bottom: 1px solid var(--editor-border);
+  background: #fff;
+  flex-shrink: 0;
+}
+
+@media (max-width: 760px) {
+  .header {
+    padding-inline: 10px;
+  }
+
+  .headerRow {
+    gap: 8px !important;
+
+    :global(.ant-input) {
+      width: 100px;
+    }
+
+    :global(.ant-divider) {
+      margin-inline: 0;
+    }
+  }
+}

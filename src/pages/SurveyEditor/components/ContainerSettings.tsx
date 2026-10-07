@@ -1,6 +1,6 @@
 import { Form, Input, Layout, Tabs } from 'antd';
 
-import styles from '../index.less';
+import styles from '../styles/ContainerSettings.less';
 
 import type { SurveyContainer } from '../types';
 
@@ -19,7 +19,7 @@ export default function ContainerSettings({ container, onNameChange }: Props) {
           key: 'question',
           label: '题目设置',
           children: (
-            <Form layout="vertical" className={styles.introSettingsForm}>
+            <Form layout="vertical" className={styles.containerSettingsForm}>
               <Form.Item label={label} htmlFor="container-name">
                 <Input
                   id="container-name"

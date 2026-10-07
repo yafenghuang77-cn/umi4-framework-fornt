@@ -1,0 +1,64 @@
+.styleSettings {
+  min-width: 0;
+  padding: 22px 20px;
+  overflow-y: auto;
+}
+
+.appearanceSection {
+  margin-bottom: 24px;
+}
+
+.appearanceSection h3 {
+  margin: 0 0 14px;
+  color: #546174;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.appearanceForm {
+  :global(.ant-form-item) {
+    margin-bottom: 0;
+  }
+
+  :global(.ant-form-item-label > label),
+  label {
+    color: #8792a3;
+    font-size: 12px;
+  }
+
+  :global(.ant-form-item-label) {
+    padding-bottom: 6px;
+  }
+}
+
+.colorSwatch:global(.ant-btn) {
+  width: 34px;
+  min-width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 1px solid #dfe4ec;
+  border-radius: 7px;
+  box-shadow: none;
+
+  &[aria-pressed='true'] {
+    outline: 2px solid #a5b1c3;
+    outline-offset: 2px;
+  }
+}
+
+.shapeButton:global(.ant-btn) {
+  min-width: 68px;
+  border: 0;
+  box-shadow: none;
+
+  &[aria-pressed='true'] {
+    outline: 2px solid #a5b1c3;
+    outline-offset: 2px;
+  }
+}
+
+@media (max-width: 760px) {
+  .styleSettings {
+    overflow-y: visible;
+  }
+}

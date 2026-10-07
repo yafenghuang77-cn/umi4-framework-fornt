@@ -3,8 +3,9 @@ import { useState } from 'react';
 import { history } from '@umijs/max';
 import { Button, ConfigProvider, Flex, Layout } from 'antd';
 
+import { defaultAppearance } from './appearance';
 import EditorHeader from './components/EditorHeader';
-import styles from './index.less';
+import styles from './styles/SurveyEditor.less';
 import useCanvasContainers from './useCanvasContainers';
 import ContentPage from './views/ContentPage';
 import LogicPage from './views/LogicPage';
@@ -15,6 +16,7 @@ import type { EditorMode } from './types';
 export default function SurveyEditorPage() {
   const [title, setTitle] = useState('访谈问卷');
   const [mode, setMode] = useState<EditorMode>('content');
+  const [appearance, setAppearance] = useState(defaultAppearance);
   const back = () => history.push('/welcome');
   const canvasEditor = useCanvasContainers();
   return (
@@ -43,7 +45,12 @@ export default function SurveyEditorPage() {
         ) : mode === 'logic' ? (
           <LogicPage />
         ) : (
-          <StylePage />
+          <StylePage
+            value={appearance}
+            onChange={setAppearance}
+            containers={canvasEditor.containers}
+            title={title}
+          />
         )}
         <Layout.Footer className={styles.footer}>
           <Flex justify="space-between" align="center">

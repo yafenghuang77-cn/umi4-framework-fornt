@@ -1,11 +1,12 @@
 import { useState } from 'react';
 
+import { DownOutlined, UpOutlined } from '@ant-design/icons';
 import { Badge, Button, Tree, Typography } from 'antd';
 
 import { questionKindByType } from '../catalogAdapter';
-import styles from '../index.less';
 import { questionGroups } from '../questionCatalog';
 import { DRAG_KEY } from '../schema';
+import styles from '../styles/QuestionTypeTree.less';
 
 export default function QuestionTypeTree() {
   const [expanded, setExpanded] = useState<React.Key[]>([]);
@@ -33,6 +34,7 @@ export default function QuestionTypeTree() {
           <Badge count={group.count} color="#e9ecf2" className={styles.count} />
           <Typography.Text type="secondary" className={styles.expand}>
             {open ? '收起' : '展开'}
+            {open ? <UpOutlined aria-hidden="true" /> : <DownOutlined aria-hidden="true" />}
           </Typography.Text>
         </Button>
       ),

@@ -1,6 +1,6 @@
 import { Layout } from 'antd';
 
-import styles from '../index.less';
+import styles from '../styles/LogicPage.less';
 
 /** Reserved for survey logic configuration. */
 export default function LogicPage() {

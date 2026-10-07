@@ -8,8 +8,8 @@ import {
 } from '@ant-design/icons';
 import { Button, Card, Flex, Typography } from 'antd';
 
-import styles from '../index.less';
 import { DRAG_KEY } from '../schema';
+import styles from '../styles/CanvasContainer.less';
 
 import type { SurveyContainer } from '../types';
 

@@ -1,0 +1,38 @@
+.editor {
+  --editor-border: #e0e5ed;
+  --editor-palette-width: 250px;
+  --editor-settings-width: 250px;
+
+  height: 100dvh;
+  overflow: hidden;
+  background: #fff;
+}
+
+.footer {
+  padding: 10px 12px;
+  min-height: 54px;
+  background: #fff;
+  border-top: 1px solid #edf0f3;
+  flex-shrink: 0;
+}
+
+@media (min-width: 1800px) {
+  .editor {
+    --editor-palette-width: 280px;
+    --editor-settings-width: 280px;
+  }
+}
+
+@media (max-width: 1100px) {
+  .editor {
+    --editor-palette-width: 220px;
+    --editor-settings-width: 220px;
+  }
+}
+
+@media (max-width: 760px) {
+  .editor {
+    --editor-palette-width: 180px;
+    --editor-settings-width: 80px;
+  }
+}

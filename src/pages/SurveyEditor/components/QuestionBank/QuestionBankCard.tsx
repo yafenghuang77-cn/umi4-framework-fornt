@@ -1,8 +1,8 @@
 import { Card, Flex, Tag, Typography } from 'antd';
 
-import styles from '../../index.less';
 import { questionGroups } from '../../questionCatalog';
 import { DRAG_KEY } from '../../schema';
+import styles from '../../styles/QuestionBankCard.less';
 
 import type { BankQuestion } from './data';
 

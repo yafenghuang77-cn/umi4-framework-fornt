@@ -1,0 +1,54 @@
+.bankCard {
+  flex-shrink: 0;
+  border-color: var(--editor-border);
+  cursor: grab;
+
+  :global(.ant-card-body) {
+    padding: 10px;
+    min-height: 66px;
+  }
+
+  &:hover {
+    border-color: #8ab4ff;
+    background: #fcfdff;
+  }
+}
+
+.bankQuestionIcon:global(.ant-tag) {
+  margin: 0;
+  padding-inline: 5px;
+  line-height: 24px;
+  background: #edf4ff;
+  color: #3d7dff;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.bankCardContent {
+  min-width: 0;
+}
+
+.bankQuestionTitle {
+  color: #566175;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+.bankTypeTag:global(.ant-tag),
+.bankLabelTag:global(.ant-tag) {
+  margin: 0;
+  padding-inline: 5px;
+  font-size: 10px;
+  line-height: 18px;
+  border-radius: 3px;
+}
+
+.bankTypeTag:global(.ant-tag) {
+  background: #edf4ff;
+  color: #3d7dff;
+}
+
+.bankLabelTag:global(.ant-tag) {
+  background: #f0f3f7;
+  color: #94a0b3;
+}

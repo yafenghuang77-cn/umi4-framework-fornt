@@ -1,6 +1,6 @@
 import { Form, Input, InputNumber, Layout, Typography } from 'antd';
 
-import styles from '../index.less';
+import styles from '../styles/SettingsPanel.less';
 import ContainerSettings from './ContainerSettings';
 
 import type { CanvasEditor } from '../useCanvasContainers';

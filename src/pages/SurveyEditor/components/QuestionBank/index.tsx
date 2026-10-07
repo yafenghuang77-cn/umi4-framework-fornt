@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { DownOutlined, SearchOutlined, UpOutlined } from '@ant-design/icons';
 import { Button, Empty, Flex, Input, Pagination, Tag, Typography } from 'antd';
 
-import styles from '../../index.less';
+import styles from '../../styles/QuestionBank.less';
 import { bankQuestions, bankTags } from './data';
 import QuestionBankCard from './QuestionBankCard';
 

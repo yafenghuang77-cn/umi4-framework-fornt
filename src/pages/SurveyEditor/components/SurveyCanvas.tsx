@@ -3,8 +3,8 @@ import { useState } from 'react';
 import { PlusCircleFilled } from '@ant-design/icons';
 import { Flex, Layout, Typography } from 'antd';
 
-import styles from '../index.less';
 import { DRAG_KEY } from '../schema';
+import styles from '../styles/SurveyCanvas.less';
 import CanvasContainer from './CanvasContainer';
 
 import type { CanvasEditor, ContainerDrag } from '../useCanvasContainers';

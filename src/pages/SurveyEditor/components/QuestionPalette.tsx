@@ -4,9 +4,9 @@ import { AppstoreFilled, BookFilled } from '@ant-design/icons';
 import { Button, Divider, Flex, Layout, Tabs, Typography } from 'antd';
 
 import { containerKindByType } from '../catalogAdapter';
-import styles from '../index.less';
 import { containerComponents } from '../questionCatalog';
 import { DRAG_KEY } from '../schema';
+import styles from '../styles/QuestionPalette.less';
 import QuestionBankPanel from './QuestionBank';
 import QuestionTypeTree from './QuestionTypeTree';
 

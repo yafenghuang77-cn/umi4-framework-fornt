@@ -1,0 +1,68 @@
+.bankPanel {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.bankFilters {
+  padding: 16px 10px 12px;
+  flex-shrink: 0;
+}
+
+.bankHeading:global(.ant-typography) {
+  margin: 0;
+  font-size: 14px;
+
+  &::before {
+    content: '';
+    display: inline-block;
+    width: 7px;
+    height: 4px;
+    margin-right: 8px;
+    vertical-align: middle;
+    background: #3d7dff;
+  }
+}
+
+.bankTags {
+  :global(.ant-tag) {
+    margin-inline-end: 0;
+    padding-inline: 7px;
+    font-size: 11px;
+    line-height: 20px;
+    border: 0;
+    border-radius: 12px;
+    background: #f0f3f7;
+    color: #7c879a;
+  }
+
+  :global(.ant-tag-checkable-checked) {
+    background: #3d7dff;
+    color: #fff;
+  }
+}
+
+.bankExpand {
+  padding: 0 3px;
+  height: 20px;
+  color: #3d7dff;
+  font-size: 11px;
+}
+
+.bankResults {
+  padding: 0 10px 10px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.bankFooter {
+  padding: 10px;
+  border-top: 1px solid var(--editor-border);
+  flex-shrink: 0;
+
+  > :global(.ant-typography) {
+    font-size: 10px;
+    color: #9ca8bc;
+  }
+}

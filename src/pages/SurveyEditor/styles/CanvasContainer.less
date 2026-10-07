@@ -1,0 +1,123 @@
+.canvasContainer {
+  border-color: var(--editor-border);
+
+  :global(.ant-card-head) {
+    padding-inline: 14px;
+    min-height: 48px;
+    background: #f3f5f8;
+  }
+
+  :global(.ant-card-head-title) {
+    padding: 6px 0;
+  }
+
+  :global(.ant-card-body) {
+    padding: 16px;
+  }
+}
+
+.canvasContainerTitle {
+  padding-inline: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: #687489;
+}
+
+.containerMeta:global(.ant-typography) {
+  font-size: 13px;
+  font-weight: 400;
+  color: #9aa6b8;
+}
+
+.containerHandle {
+  color: #9aa6b8;
+  cursor: grab;
+}
+
+.containerDelete {
+  color: #9aa6b8;
+}
+
+.containerQuestionPlaceholder {
+  min-height: 74px;
+  color: #9aa6b8;
+
+  :global(.ant-typography) {
+    font-size: 12px;
+    color: inherit;
+  }
+
+  > :global(.anticon) {
+    font-size: 18px;
+  }
+}
+
+.canvasfollowup {
+  border: 2px dashed #b578ff;
+
+  :global(.ant-card-head) {
+    background: #f0e3ff;
+    border-color: #e4cdff;
+  }
+
+  :global(.ant-card-body) {
+    background: #fcf9ff;
+  }
+
+  .canvasContainerTitle,
+  .containerMeta,
+  .containerDelete,
+  .containerHandle,
+  .containerQuestionPlaceholder {
+    color: #a568ff;
+  }
+}
+
+.canvasintro {
+  border-color: #46dc80;
+
+  :global(.ant-card-head) {
+    background: #dcfce8;
+    border-color: #b8f1cc;
+  }
+
+  .canvasContainerTitle,
+  .containerMeta,
+  .containerDelete,
+  .containerHandle {
+    color: #16bf6d;
+  }
+}
+
+.introPreview {
+  height: auto;
+  padding: 14px 18px;
+  text-align: left;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  justify-content: flex-start;
+
+  :global(.ant-typography) {
+    margin: 0;
+  }
+
+  :global(strong) {
+    font-size: 15px;
+    color: #263043;
+  }
+
+  :global(.ant-typography-secondary) {
+    font-size: 13px;
+    color: #929daf;
+  }
+}
+
+.introSelected {
+  border-color: #ffacb4;
+  background: #fff7f8;
+}
+
+.canvasContainerSelected {
+  border-color: #f5bfc7;
+  box-shadow: 0 0 0 2px #f7c5cc;
+}

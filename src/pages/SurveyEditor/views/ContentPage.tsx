@@ -3,7 +3,7 @@ import { Layout } from 'antd';
 import QuestionPalette from '../components/QuestionPalette';
 import SettingsPanel from '../components/SettingsPanel';
 import SurveyCanvas from '../components/SurveyCanvas';
-import styles from '../index.less';
+import styles from '../styles/ContentPage.less';
 
 import type { CanvasEditor } from '../useCanvasContainers';
 

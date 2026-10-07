@@ -1,0 +1,58 @@
+.stylePreview {
+  min-width: 0;
+  padding: 22px 20px;
+  overflow-y: auto;
+  background: #f7f9fb;
+  border-inline-start: 1px solid var(--editor-border);
+}
+
+.stylePreview > h3 {
+  margin: 0 0 14px;
+  color: #546174;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.appearancePreviewCard {
+  min-height: 280px;
+  padding: 24px;
+  border: 1px solid #e0e5ed;
+  border-radius: 8px;
+
+  :global(.ant-empty) {
+    margin: 0;
+    color: #999;
+  }
+
+  :global(.ant-empty-description) {
+    margin-top: 14px;
+    color: #999;
+    font-size: inherit;
+  }
+
+  h2,
+  h3,
+  h4 {
+    margin: 0 0 12px;
+    font-size: inherit;
+    font-weight: 500;
+  }
+}
+
+.appearancePreviewEmpty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.previewIntroText {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 760px) {
+  .stylePreview {
+    overflow-y: visible;
+  }
+}

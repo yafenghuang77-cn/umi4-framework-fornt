@@ -1,0 +1,61 @@
+.canvas {
+  min-width: 0;
+  background: #f5f7fa;
+}
+
+.canvasWorkspace {
+  padding: 18px 12px;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.canvasEmpty {
+  height: 270px;
+  padding: 20px;
+  border: 2px dashed #d5dce7;
+  border-radius: 8px;
+  text-align: center;
+
+  > :global(.anticon) {
+    color: #9aa6b8;
+    font-size: 36px;
+  }
+
+  > :global(.ant-typography) {
+    color: #98a5b8;
+  }
+}
+
+.canvasSlot {
+  position: relative;
+}
+
+.dropBefore::before,
+.dropAfter::after {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  height: 3px;
+  border-radius: 3px;
+  background: #3d7dff;
+  z-index: 1;
+}
+
+.dropBefore::before {
+  top: -6px;
+}
+
+.dropAfter::after {
+  bottom: -6px;
+}
+
+.canvasAppend {
+  min-height: 58px;
+  border: 1px dashed #d5dce7;
+  border-radius: 6px;
+}
+
+.canvasDropActive {
+  border-color: #3d7dff;
+  background: #eef5ff;
+}

@@ -1,5 +1,54 @@
 import { expect, test } from '@playwright/test';
 
+test('样式配置实时更新预览，并在切换页签后保留', async ({ page }) => {
+  await page.goto('/framework/survey/editor');
+  await page.getByRole('button', { name: '样式', exact: true }).click();
+  const preview = page.getByRole('region', { name: '预览效果' });
+  await expect(preview.getByText('请先在内容页面添加题目')).toBeVisible();
+  await page.getByRole('button', { name: '主题颜色：蓝色', exact: true }).click();
+  await page.getByRole('button', { name: '背景颜色：浅粉色', exact: true }).click();
+  await page.getByRole('button', { name: '胶囊', exact: true }).click();
+  await page.getByRole('combobox', { name: '字号', exact: true }).click();
+  await page.getByRole('combobox', { name: '字号', exact: true }).press('ArrowDown');
+  await page.getByRole('combobox', { name: '字号', exact: true }).press('Enter');
+  await page.getByRole('switch', { name: '显示题号', exact: true }).click();
+  await page.getByRole('button', { name: '内容', exact: true }).click();
+  await page
+    .getByRole('complementary', { name: '题型面板' })
+    .getByRole('button', { name: '引导语', exact: true })
+    .dragTo(page.getByRole('main', { name: '问卷画布' }));
+  await page.getByRole('button', { name: '样式', exact: true }).click();
+  await expect(page.getByRole('button', { name: '主题颜色：蓝色', exact: true })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
+  await expect(page.getByRole('button', { name: '胶囊', exact: true })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
+  await expect(page.getByRole('switch', { name: '显示题号', exact: true })).not.toBeChecked();
+  await expect(preview.getByText('感谢您参与本次访谈，请根据实际情况作答。')).toBeVisible();
+  await expect(preview.getByRole('button', { name: '下一页' })).toHaveCSS(
+    'background-color',
+    'rgb(59, 130, 246)',
+  );
+  await expect(preview.getByRole('button', { name: '下一页' })).toHaveCSS('border-radius', '24px');
+  await expect(preview.getByText('感谢您参与本次访谈，请根据实际情况作答。')).toHaveCSS(
+    'font-size',
+    '16px',
+  );
+  await expect(
+    preview
+      .getByText('感谢您参与本次访谈，请根据实际情况作答。')
+      .locator('..')
+      .locator('..')
+      .locator('..'),
+  ).toHaveCSS('background-color', 'rgb(255, 241, 242)');
+  await expect(preview.getByLabel('问卷进度')).toBeVisible();
+  await page.getByRole('switch', { name: '显示进度条', exact: true }).click();
+  await expect(preview.getByLabel('问卷进度')).toHaveCount(0);
+});
+
 test('问卷页面保留树形题型和拖拽数据，画布与设置面板为空白', async ({ page }) => {
   await page.goto('/framework/survey/editor');
   const palette = page.getByRole('complementary', { name: '题型面板' });

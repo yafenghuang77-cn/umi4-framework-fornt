@@ -1,8 +1,24 @@
 import { Layout } from 'antd';
 
-import styles from '../index.less';
+import StylePreview from '../components/StylePreview';
+import StyleSettings from '../components/StyleSettings';
+import styles from '../styles/StylePage.less';
 
-/** Reserved for survey appearance configuration. */
-export default function StylePage() {
-  return <Layout.Content className={styles.blankPage} role="main" aria-label="样式编辑页" />;
+import type { SurveyAppearance } from '../appearance';
+import type { SurveyContainer } from '../types';
+
+interface Props {
+  value: SurveyAppearance;
+  onChange: (value: SurveyAppearance) => void;
+  containers: SurveyContainer[];
+  title: string;
+}
+
+export default function StylePage({ value, onChange, containers, title }: Props) {
+  return (
+    <Layout.Content className={styles.stylePage} role="main" aria-label="样式编辑页">
+      <StyleSettings value={value} onChange={onChange} />
+      <StylePreview value={value} containers={containers} title={title} />
+    </Layout.Content>
+  );
 }
