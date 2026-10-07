@@ -1,5 +1,5 @@
 import { defineConfig } from '@umijs/max';
-import { join } from 'node:path';
+import { isAbsolute, join, parse, relative, resolve, sep } from 'node:path';
 
 import devConfig from './config.dev';
 import defaultSettings from './defaultSettings';
@@ -20,12 +20,24 @@ if (!Object.hasOwn(environments, umiEnv)) {
 }
 
 const environment = environments[umiEnv as keyof typeof environments];
+const isBuild = process.argv[2] === 'build';
 
 if (process.argv[2] === 'dev') {
   process.stdout.write(`\n[启动环境] ${environment.label}（${environment.appEnv}）\n\n`);
 }
 
-export default defineConfig({
+const config = defineConfig({
+  // 本地启动不指定输出目录；仅打包阶段读取产物目录变量。
+  ...(isBuild ? { outputPath: process.env.BUILD_OUTPUT_PATH || 'framework' } : {}),
+  targets: { chrome: 100, edge: 100, firefox: 100, safari: '15.4' },
+  // 发布产物不包含源码映射；各环境的本地启动保留映射用于排查问题。
+  devtool: isBuild ? false : 'cheap-module-source-map',
+  // Umi 检测配置；Utoopack 下由打包后的 pnpm deadcode 补充检测。
+  deadCode: {
+    patterns: ['src/**/*'],
+    exclude: ['src/.umi*/**'],
+    failOnHint: false,
+  },
   history: {
     type: 'browser',
   },
@@ -86,14 +98,16 @@ export default defineConfig({
     queryClient: true,
     devtool: umiEnv === 'dev',
   },
-  analytics: {
-    ga_v2: 'G-59NF1VHHPF',
-  },
   headScripts: [
     // 解决首次加载时白屏的问题
-    { src: join(PUBLIC_PATH, 'scripts/loading.js'), async: true },
+    { src: join(PUBLIC_PATH, 'js/loading.js'), async: true },
   ],
-  plugins: ['@umijs/max-plugin-openapi', '@umijs/request-record'],
+  plugins: [
+    '@umijs/max-plugin-openapi',
+    '@umijs/request-record',
+    join(__dirname, 'plugins/build-assets.ts'),
+    join(__dirname, 'plugins/prepare-deploy.ts'),
+  ],
   openAPI: [
     {
       requestLibPath: "import { request } from '@umijs/max'",
@@ -109,6 +123,37 @@ export default defineConfig({
     exclude: ['mock/requestRecord.mock.js'],
   },
   utoopack: {
+    // 仅调整构建产物；开发服务保留默认输出和分包方式。
+    ...(isBuild
+      ? {
+          output: {
+            filename: 'js/[name].[contenthash:8].js',
+            chunkFilename: 'js/[name].[contenthash:8].async.js',
+            cssFilename: 'css/[name].[contenthash:8].css',
+            cssChunkFilename: 'css/[name].[contenthash:8].css',
+          },
+          optimization: {
+            packageImports: ['@ant-design/icons', '@ant-design/pro-components'],
+            splitChunks: {
+              js: {
+                minChunkSize: 20_000,
+                maxChunkCountPerGroup: 40,
+                // 限制合并目标大小，不是每个产物文件的硬性上限。
+                maxMergeChunkSize: 100_000,
+              },
+              css: {
+                minChunkSize: 10_000,
+                maxChunkCountPerGroup: 10,
+                maxMergeChunkSize: 100_000,
+              },
+            },
+          },
+        }
+      : {}),
+    reactCompiler: {
+      compilationMode: 'infer',
+      target: '19',
+    },
     module: {
       rules: {
         '*.md': {
@@ -121,4 +166,23 @@ export default defineConfig({
   requestRecord: {},
   // 本地开发代理配置
   proxy: proxy[umiEnv as keyof typeof proxy] || proxy.dev,
+  phantomDependency: { exclude: [] },
 });
+
+if (isBuild && config.outputPath) {
+  const outputDirectory = resolve(config.outputPath);
+  if (outputDirectory === parse(outputDirectory).root) {
+    throw new Error('outputPath 不能设置为磁盘根目录，请使用 dist 等项目产物目录。');
+  }
+  const relativeOutput = relative(process.cwd(), outputDirectory);
+  if (
+    !relativeOutput ||
+    relativeOutput === '..' ||
+    relativeOutput.startsWith(`..${sep}`) ||
+    isAbsolute(relativeOutput)
+  ) {
+    throw new Error('outputPath 必须指向项目内的产物子目录，例如 dist/prod 或 framework。');
+  }
+}
+
+export default config;

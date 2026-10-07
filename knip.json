@@ -1,0 +1,13 @@
+{
+  "$schema": "https://unpkg.com/knip/schema.json",
+  "entry": ["src/.umi-production/umi.ts", "config/config.ts", "config/config.*.ts"],
+  "project": ["src/**/*.{ts,tsx}", "!src/.umi*/**"],
+  "ignoreIssues": {
+    "src/app.tsx": ["exports"],
+    "src/access.ts": ["exports"],
+    "src/pages/**": ["exports"],
+    "src/models/**": ["exports"],
+    "src/locales/**": ["exports"],
+    "src/components/PageSkeleton/InitialLoading.tsx": ["exports"]
+  }
+}
