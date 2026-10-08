@@ -17,7 +17,7 @@ export default function SurveyEditorPage() {
   const [title, setTitle] = useState('访谈问卷');
   const [mode, setMode] = useState<EditorMode>('content');
   const [appearance, setAppearance] = useState(defaultAppearance);
-  const back = () => history.push('/welcome');
+  const back = () => history.push('/survey/list');
   const canvasEditor = useCanvasContainers();
   return (
     <ConfigProvider

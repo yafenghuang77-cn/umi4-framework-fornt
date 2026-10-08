@@ -28,7 +28,7 @@ export default function EditorHeader({ title, mode, onTitle, onMode, onBack }: P
       <Layout.Header className={styles.header}>
         <Flex align="center" gap={12} className={styles.headerRow}>
           <Button type="text" icon={<ArrowLeftOutlined aria-hidden="true" />} onClick={onBack}>
-            返回项目详情
+            返回问卷列表
           </Button>
           <Divider type="vertical" />
           <Input

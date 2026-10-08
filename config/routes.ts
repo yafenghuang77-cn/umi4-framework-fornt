@@ -8,17 +8,31 @@ export default [
   },
   { path: '/', redirect: '/welcome' },
   {
-    name: '问卷编辑器',
+    name: '问卷设置',
     icon: 'FormOutlined',
     path: '/survey/editor',
     component: './SurveyEditor',
     layout: false,
+    hideInMenu: true,
   },
   {
     name: '首页',
     icon: 'HomeOutlined',
     path: '/welcome',
     component: './Home',
+  },
+  {
+    name: '调研问卷',
+    icon: 'FormOutlined',
+    path: '/survey',
+    routes: [
+      { path: '/survey', redirect: '/survey/list' },
+      {
+        name: '问卷列表',
+        path: '/survey/list',
+        component: './SurveyList',
+      },
+    ],
   },
   {
     name: '系统管理',

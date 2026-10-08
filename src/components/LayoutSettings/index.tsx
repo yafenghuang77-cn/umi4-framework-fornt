@@ -1,11 +1,12 @@
 import { useEffect } from 'react';
 
 import { SettingDrawer } from '@ant-design/pro-components';
-import { useDispatch, useModel, useSelector } from '@umijs/max';
+import { useDispatch, useLocation, useModel, useSelector } from '@umijs/max';
 
 import { type SettingsRootState } from '@/models/settings';
 
 export default function LayoutSettings() {
+  const { pathname } = useLocation();
   const settings = useSelector((state: SettingsRootState) => state.settings);
   const dispatch = useDispatch();
   const { setInitialState } = useModel('@@initialState');
@@ -18,6 +19,10 @@ export default function LayoutSettings() {
       settings,
     }));
   }, [settings, setInitialState]);
+
+  if (pathname !== '/welcome') {
+    return null;
+  }
 
   return (
     <SettingDrawer
