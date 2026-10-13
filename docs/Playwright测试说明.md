@@ -13,14 +13,14 @@ pnpm test:e2e:install
 
 在 Linux CI 中首次安装浏览器及系统依赖可执行 `pnpm exec playwright install --with-deps chromium`。
 
-| 命令                                     | 用途                    |
-| ---------------------------------------- | ----------------------- |
-| `pnpm test:e2e`                          | 无界面运行全部测试      |
-| `pnpm test:e2e:ui`                       | 打开 Playwright UI 模式 |
-| `pnpm test:e2e:headed`                   | 显示浏览器运行测试      |
-| `pnpm test:e2e:report`                   | 查看上一次 HTML 报告    |
-| `pnpm test:e2e -- tests/e2e/app.spec.ts` | 运行指定测试文件        |
-| `pnpm test:e2e -- --grep "品牌切换"`     | 按名称筛选测试          |
+| 命令                                  | 用途                    |
+| ------------------------------------- | ----------------------- |
+| `pnpm test:e2e`                       | 无界面运行全部测试      |
+| `pnpm test:e2e:ui`                    | 打开 Playwright UI 模式 |
+| `pnpm test:e2e:headed`                | 显示浏览器运行测试      |
+| `pnpm test:e2e:report`                | 查看上一次 HTML 报告    |
+| `pnpm test:e2e tests/e2e/app.spec.ts` | 运行指定测试文件        |
+| `pnpm test:e2e --grep "品牌切换"`     | 按名称筛选测试          |
 
 普通测试默认自动启动 DEV 服务，监听 `127.0.0.1:18101`，结束后由 Playwright 关闭。此服务独立于日常开发端口，不修改 `.env.local`，也不会复用或关闭已经运行的开发服务。测试端口已占用时会报错，不会悄悄切换到其他端口。
 

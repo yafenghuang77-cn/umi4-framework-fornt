@@ -51,6 +51,11 @@ module.exports = {
   },
   overrides: [
     {
+      files: ['tests/setup.ts', 'tests/unit/**/*.{ts,tsx}'],
+      env: { jest: true },
+      extends: ['plugin:jest/recommended'],
+    },
+    {
       files: ['**/*.{ts,tsx}'],
       parser: '@typescript-eslint/parser',
       extends: ['plugin:@typescript-eslint/recommended'],

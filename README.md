@@ -8,7 +8,7 @@
 
 接口请求使用 Umi request，服务端数据缓存使用 React Query；代码规范由 ESLint、Prettier 和 Stylelint 统一管理。更多依赖用途见 [插件与依赖说明](docs/插件与依赖说明.md)。
 
-端到端测试使用 Playwright，执行 `pnpm test:e2e` 自动启动独立测试服务并运行 Chromium 测试。安装、UI 模式、报告和新增用例说明见 [Playwright 测试说明](docs/Playwright测试说明.md)。
+单元与组件测试使用 Jest 和 React Testing Library，执行 `pnpm test`；监听和覆盖率命令见 [Jest 测试说明](docs/Jest测试说明.md)。端到端测试使用 Playwright，执行 `pnpm test:e2e` 自动启动独立测试服务并运行 Chromium 测试。安装、UI 模式、报告和新增用例说明见 [Playwright 测试说明](docs/Playwright测试说明.md)。
 
 ## 开发准备
 
@@ -22,7 +22,7 @@
 pnpm install
 ```
 
-安装过程中会自动执行 `max setup`，生成 Umi 所需的临时文件。
+安装过程中会自动执行 `max setup`，生成 Umi 所需的临时文件和 TypeScript 路径映射。项目的测试依赖也会一并安装。
 
 ## 启动项目
 
@@ -49,6 +49,43 @@ pnpm dev
 | PROD 生产环境 | `pnpm dev:prod` |
 
 这些命令启动支持热更新的本地服务，分别加载对应环境的接口配置与代理。排查前请配置实际的 `UAT_API_BASE_URL`、`PRE_API_BASE_URL` 或 `PROD_API_BASE_URL`；使用相对地址时，请在 `config/proxy.ts` 配置对应代理目标。React Query Devtools 仅在 DEV 环境启用。
+
+## 测试
+
+项目使用两套测试工具：Jest 30 + React Testing Library 测试基础逻辑和 React 组件，Playwright 在真实浏览器中测试页面流程。
+
+### 单元与组件测试
+
+安装项目依赖后即可运行，无需先启动开发服务或安装浏览器：
+
+```bash
+pnpm test           # 运行全部单元与组件测试一次
+pnpm test:watch     # 监听文件变化，持续运行相关测试
+pnpm test:coverage  # 运行测试并生成覆盖率报告
+```
+
+配置入口为 `jest.config.cjs`，新增用例放在 `tests/unit/`，使用 `*.test.ts` 或 `*.test.tsx` 文件名。当前基础用例覆盖请求与 Token 处理、超时重试、品牌和布局配置持久化，以及颜色选择器交互。
+
+测试环境使用 jsdom，已配置 DOM 断言、浏览器 API 模拟、存储隔离和静态资源替身。Umi 路径别名会自动同步到 Jest。jsdom 不执行真实布局，响应式表现和浏览器页面流程交给 Playwright 验证。
+
+覆盖率报告输出到 `coverage/`，打开 `coverage/index.html` 查看详情；报告包含尚未测试的应用源码，目前未设置统一覆盖率门槛。新增用例、模块 Mock 和指定文件运行方式见 [Jest 测试说明](docs/Jest测试说明.md)。
+
+### 浏览器端到端测试
+
+首次运行前安装 Chromium：
+
+```bash
+pnpm test:e2e:install
+pnpm test:e2e
+```
+
+配置入口为 `playwright.config.ts`，用例位于 `tests/e2e/`，使用 `*.spec.ts` 文件名。测试默认启动独立 DEV 服务，监听 `127.0.0.1:18101`，运行结束后自动关闭。
+
+可使用 `pnpm test:e2e:ui` 打开交互模式、`pnpm test:e2e:headed` 查看浏览器执行过程，或使用 `pnpm test:e2e:report` 查看 HTML 报告。报告输出到 `playwright-report/`，失败时的截图、视频和 Trace 输出到 `test-results/`。
+
+当前浏览器用例覆盖登录校验、模拟登录与退出、用户页面直接访问和刷新，以及品牌切换与持久化。登录仍使用模拟实现，接入真实认证后需同步调整测试数据和用例。指定已有服务、调整测试端口和调试方法见 [Playwright 测试说明](docs/Playwright测试说明.md)。
+
+两套测试分别运行，打包命令和提交钩子不会自动执行测试。提交前建议运行 `pnpm test`、`pnpm typecheck` 和 `pnpm lint`；修改页面流程时再运行 `pnpm test:e2e`。
 
 ## 项目打包
 
@@ -149,6 +186,7 @@ pnpm exec max build
 
 ```text
 config/                 # 公共配置、环境配置、菜单路由与布局设置
+  plugins/              # 路径别名同步、构建资源和部署处理插件
 src/
   app.tsx               # 应用初始化、布局和全局请求配置
   access.ts             # 权限定义入口
@@ -159,14 +197,31 @@ src/
   utils/                # 通用工具函数
   global.less           # 全局样式
 public/                 # 静态资源
-docs/                  # 依赖与插件说明
+tests/
+  unit/                 # Jest 单元与组件测试
+  e2e/                  # Playwright 浏览器端到端测试
+  mocks/                # 测试用静态资源替身
+  setup.ts              # Jest 测试环境初始化
+  transform.cjs         # TypeScript Mock 转换适配
+jest.config.cjs         # Jest 配置
+playwright.config.ts    # Playwright 配置
+docs/                   # 依赖、测试、路径别名和部署说明
 ```
 
 新增页面时，在 `src/pages/` 创建页面组件，再到 `config/routes.ts` 注册路由和菜单。布局默认设置位于 `config/defaultSettings.ts`。
 
+## 路径别名
+
+源码可以通过 `@/` 引用，例如 `@/utils/request`；同时提供 `@root`、`@components`、`@pages`、`@utils`、`@models`、`@locales`、`@constants` 和 `@public` 等目录别名。类型文件使用 `@/types/xxx`。
+
+目录别名统一维护在 `config/config.ts` 的 `alias` 中，本地插件 `config/plugins/sync-aliases.ts` 会将自定义映射追加到 Umi 生成的 TypeScript 配置，Jest 也会读取同一份 Umi 别名。根目录 `tsconfig.json` 继承生成的配置，保留项目的严格检查选项。
+
+新增别名后执行 `pnpm setup`，并重启正在运行的开发服务。不要在根 `tsconfig.json` 中重新定义 `paths`，否则会覆盖框架映射；类型目录也不要使用 `@types` 别名。完整映射、示例和静态资源引用方式见 [路径别名说明](docs/路径别名说明.md)。
+
 ## 常用检查命令
 
 ```bash
+pnpm test          # 单元与组件测试
 pnpm lint          # 代码与样式检查
 pnpm lint:fix      # 自动修复代码与样式
 pnpm typecheck     # TypeScript 类型检查
