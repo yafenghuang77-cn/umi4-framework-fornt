@@ -84,7 +84,15 @@ const config = defineConfig({
   exportStatic: {},
   // turbopack: {},
   alias: {
+    '@': join(__dirname, '../src'),
     '@root': join(__dirname, '..'),
+    '@components': join(__dirname, '../src/components'),
+    '@pages': join(__dirname, '../src/pages'),
+    '@utils': join(__dirname, '../src/utils'),
+    '@models': join(__dirname, '../src/models'),
+    '@locales': join(__dirname, '../src/locales'),
+    '@constants': join(__dirname, '../src/constants'),
+    '@public': join(__dirname, '../public'),
   },
   fastRefresh: true,
   routePrefetch: {},
@@ -112,6 +120,7 @@ const config = defineConfig({
   plugins: [
     '@umijs/max-plugin-openapi',
     '@umijs/request-record',
+    join(__dirname, 'plugins/sync-aliases.ts'),
     join(__dirname, 'plugins/build-assets.ts'),
     join(__dirname, 'plugins/prepare-deploy.ts'),
   ],
