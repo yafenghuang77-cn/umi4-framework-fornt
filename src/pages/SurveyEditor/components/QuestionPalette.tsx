@@ -1,12 +1,10 @@
 import { useState } from 'react';
 
 import { AppstoreFilled, BookFilled } from '@ant-design/icons';
-import { Button, Divider, Flex, Layout, Tabs, Typography } from 'antd';
+import { Divider, Flex, Layout, Tabs, Typography } from 'antd';
 
-import { containerKindByType } from '../catalogAdapter';
-import { containerComponents } from '../questionCatalog';
-import { DRAG_KEY } from '../schema';
 import styles from '../styles/QuestionPalette.less';
+import ContainerPalette from './ContainerPalette';
 import QuestionBankPanel from './QuestionBank';
 import QuestionTypeTree from './QuestionTypeTree';
 
@@ -39,31 +37,7 @@ export default function QuestionPalette() {
             <QuestionTypeTree />
             <Divider />
             <Typography.Title level={5}>容器组件</Typography.Title>
-            <Flex vertical gap={8} className={styles.containerPalette}>
-              {containerComponents.map((item) => (
-                <Button
-                  key={item.key}
-                  className={styles[containerKindByType[item.type]]}
-                  block
-                  icon={
-                    <span className={styles.containerIcon} aria-hidden="true">
-                      {item.icon}
-                    </span>
-                  }
-                  draggable
-                  onDragStart={(e) => {
-                    e.dataTransfer.setData(
-                      DRAG_KEY,
-                      JSON.stringify({ type: 'container', kind: containerKindByType[item.type] }),
-                    );
-                    e.dataTransfer.effectAllowed = 'copy';
-                  }}
-                  title="拖拽容器组件"
-                >
-                  {item.label}
-                </Button>
-              ))}
-            </Flex>
+            <ContainerPalette />
           </>
         )}
       </Flex>

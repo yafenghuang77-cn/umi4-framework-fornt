@@ -19,70 +19,9 @@ import {
   VideoCameraFilled,
 } from '@ant-design/icons';
 
+import { SurveyContainerType, SurveyQuestionType } from '@/constants/survey';
+
 import type { ReactNode } from 'react';
-
-export enum SurveyQuestionType {
-  GuideText = 'GuideText',
-  SingleChoice = 'SingleChoice',
-  MultipleChoice = 'MultipleChoice',
-  SingleImage = 'SingleImage',
-  MultipleImage = 'MultipleImage',
-  FillInBlanks = 'FillInBlanks',
-  PhoneNum = 'PhoneNum',
-  Email = 'Email',
-  Number = 'Number',
-  Calendar = 'Calendar',
-  MultiFillInBlanks = 'MultiFillInBlanks',
-  Evaluate = 'Evaluate',
-  NPS = 'NPS',
-  ScoreComp = 'ScoreComp',
-  BidirectScoreComp = 'BidirectScoreComp',
-  MultiScoreComp = 'MultiScoreComp',
-  MultiBidirectScoreComp = 'MultiBidirectScoreComp',
-  MatrixSingleChoice = 'SquareSingleChoice',
-  MatrixMultipleChoice = 'SquareMultipleChoice',
-  MatrixScoreComp = 'SquareScoreComp',
-  MatrixBidirectScoreComp = 'SquareBidirectScoreComp',
-  Video = 'Video',
-  Image = 'Image',
-}
-
-export enum SurveyContainerType {
-  QuestionGroup = 'QuestionGroup',
-  FollowUpZone = 'FollowUpZone',
-  Guide = 'Guide',
-}
-
-/** 后端返回的是组件编码，前端展示统一转成业务可读的题型名称。 */
-export const surveyQuestionTypeLabels: Record<string, string> = {
-  [SurveyQuestionType.GuideText]: '引导语',
-  [SurveyQuestionType.SingleChoice]: '单选题',
-  [SurveyQuestionType.MultipleChoice]: '多选题',
-  [SurveyQuestionType.SingleImage]: '图片单选',
-  [SurveyQuestionType.MultipleImage]: '图片多选',
-  [SurveyQuestionType.FillInBlanks]: '文本填空',
-  [SurveyQuestionType.PhoneNum]: '手机号',
-  [SurveyQuestionType.Email]: '邮箱',
-  [SurveyQuestionType.Number]: '数值',
-  [SurveyQuestionType.Calendar]: '日期',
-  [SurveyQuestionType.MultiFillInBlanks]: '多项填空',
-  MultipleFillInBlanks: '多项填空',
-  [SurveyQuestionType.Evaluate]: '打分题',
-  [SurveyQuestionType.ScoreComp]: '打分题',
-  [SurveyQuestionType.NPS]: 'NPS',
-  [SurveyQuestionType.BidirectScoreComp]: '双向打分',
-  [SurveyQuestionType.MultiScoreComp]: '多项打分',
-  SquareScoreComp: '多项打分',
-  [SurveyQuestionType.MultiBidirectScoreComp]: '多项双向打分',
-  SquareBidirectScoreComp: '多项双向打分',
-  [SurveyQuestionType.MatrixSingleChoice]: '矩阵单选',
-  [SurveyQuestionType.MatrixMultipleChoice]: '矩阵多选',
-  MatrixScoreComp: '矩阵打分',
-  MatrixBidirectScoreComp: '矩阵双向打分',
-  [SurveyQuestionType.Video]: '视频展示',
-  [SurveyQuestionType.Image]: '图片展示',
-  DislikeQuestion: '不喜欢原因题',
-};
 
 export interface ContainerComponentItem {
   key: string;

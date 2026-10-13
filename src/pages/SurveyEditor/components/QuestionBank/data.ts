@@ -1,4 +1,4 @@
-import { SurveyQuestionType } from '../../questionCatalog';
+import { SurveyQuestionType } from '@/constants/survey';
 
 export interface BankQuestion {
   id: string;

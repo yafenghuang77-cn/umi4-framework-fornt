@@ -1,5 +1,7 @@
 import { Button, Col, Flex, Form, Row, Select, Switch } from 'antd';
 
+import ColorSwatchPicker from '@/components/ColorSwatchPicker';
+
 import {
   backgroundColors,
   buttonRadius,
@@ -29,19 +31,12 @@ export default function StyleSettings({ value, onChange }: Props) {
         ).map(([label, field, colors]) => (
           <section key={field} className={styles.appearanceSection} aria-label={label}>
             <h3>{label}</h3>
-            <Flex gap={12} wrap role="group" aria-label={label}>
-              {colors.map((color) => (
-                <Button
-                  key={color.value}
-                  className={styles.colorSwatch}
-                  aria-label={`${label}：${color.label}`}
-                  aria-pressed={value[field] === color.value}
-                  title={color.label}
-                  style={{ backgroundColor: color.value }}
-                  onClick={() => update({ [field]: color.value })}
-                />
-              ))}
-            </Flex>
+            <ColorSwatchPicker
+              label={label}
+              options={colors}
+              value={value[field]}
+              onChange={(color) => update({ [field]: color })}
+            />
           </section>
         ))}
         <section className={styles.appearanceSection}>

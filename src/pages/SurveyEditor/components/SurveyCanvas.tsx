@@ -1,63 +1,23 @@
-import { useState } from 'react';
-
 import { PlusCircleFilled } from '@ant-design/icons';
 import { Flex, Layout, Typography } from 'antd';
 
-import { DRAG_KEY } from '../schema';
+import useCanvasDrag from '../hooks/useCanvasDrag';
 import styles from '../styles/SurveyCanvas.less';
 import CanvasContainer from './CanvasContainer';
 
-import type { CanvasEditor, ContainerDrag } from '../useCanvasContainers';
+import type { CanvasEditor } from '../useCanvasContainers';
 
 interface Props {
   editor: CanvasEditor;
 }
-function readContainer(data: DataTransfer): ContainerDrag | undefined {
-  try {
-    const item = JSON.parse(data.getData(DRAG_KEY));
-    if (
-      (item?.type === 'container' && ['group', 'followup', 'intro'].includes(item.kind)) ||
-      (item?.type === 'moveContainer' && typeof item.id === 'string')
-    ) {
-      return item;
-    }
-  } catch {
-    /* Ignore unrelated or malformed drag data. */
-  }
-  return undefined;
-}
 export default function SurveyCanvas({ editor }: Props) {
-  const [over, setOver] = useState<{ id?: string; placement: 'before' | 'after' }>();
-  const drop = (
-    event: React.DragEvent,
-    targetId?: string,
-    placement: 'before' | 'after' = 'after',
-  ) => {
-    event.preventDefault();
-    event.stopPropagation();
-    setOver(undefined);
-    const item = readContainer(event.dataTransfer);
-    if (item) {
-      editor.dropContainer(item, targetId, placement);
-    }
-  };
+  const { over, canvasHandlers, getContainerHandlers } = useCanvasDrag(editor.dropContainer);
   return (
     <Layout.Content
       className={`${styles.canvas} ${styles.canvasWorkspace}`}
       role="main"
       aria-label="问卷画布"
-      onDragOver={(event) => {
-        if (event.dataTransfer.types.includes(DRAG_KEY)) {
-          event.preventDefault();
-          setOver({ placement: 'after' });
-        }
-      }}
-      onDragLeave={(event) => {
-        if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
-          setOver(undefined);
-        }
-      }}
-      onDrop={(event) => drop(event)}
+      {...canvasHandlers}
     >
       {!editor.containers.length ? (
         <Flex
@@ -77,21 +37,7 @@ export default function SurveyCanvas({ editor }: Props) {
             <div
               key={container.id}
               className={`${styles.canvasSlot} ${over?.id === container.id ? (over.placement === 'before' ? styles.dropBefore : styles.dropAfter) : ''}`}
-              onDragOver={(event) => {
-                if (!event.dataTransfer.types.includes(DRAG_KEY)) {
-                  return;
-                }
-                event.preventDefault();
-                event.stopPropagation();
-                const bounds = event.currentTarget.getBoundingClientRect();
-                setOver({
-                  id: container.id,
-                  placement: event.clientY < bounds.top + bounds.height / 2 ? 'before' : 'after',
-                });
-              }}
-              onDrop={(event) =>
-                drop(event, container.id, over?.id === container.id ? over.placement : 'after')
-              }
+              {...getContainerHandlers(container.id)}
             >
               <CanvasContainer
                 container={container}

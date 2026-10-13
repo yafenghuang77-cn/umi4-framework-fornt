@@ -1,28 +1,25 @@
-import { useState } from 'react';
-
 import { DownOutlined, SearchOutlined, UpOutlined } from '@ant-design/icons';
 import { Button, Empty, Flex, Input, Pagination, Tag, Typography } from 'antd';
 
 import styles from '../../styles/QuestionBank.less';
-import { bankQuestions, bankTags } from './data';
 import QuestionBankCard from './QuestionBankCard';
+import useQuestionBank from './useQuestionBank';
 
-const PAGE_SIZE = 8;
 export default function QuestionBankPanel() {
-  const [search, setSearch] = useState('');
-  const [activeTag, setActiveTag] = useState('全部');
-  const [expanded, setExpanded] = useState(false);
-  const [page, setPage] = useState(1);
-  const query = search.trim().toLocaleLowerCase();
-  const questions = bankQuestions.filter(
-    (question) =>
-      (activeTag === '全部' || question.tags.includes(activeTag)) &&
-      (!query ||
-        [question.title, ...question.tags].some((text) =>
-          text.toLocaleLowerCase().includes(query),
-        )),
-  );
-  const tags = expanded ? bankTags : bankTags.slice(0, 9);
+  const {
+    search,
+    changeSearch,
+    activeTag,
+    changeTag,
+    expanded,
+    toggleExpanded,
+    tags,
+    page,
+    setPage,
+    pageSize,
+    total,
+    questions,
+  } = useQuestionBank();
   return (
     <Flex vertical className={styles.bankPanel} role="region" aria-label="题库">
       <Flex vertical gap={10} className={styles.bankFilters}>
@@ -35,21 +32,11 @@ export default function QuestionBankPanel() {
           prefix={<SearchOutlined aria-hidden="true" />}
           allowClear
           value={search}
-          onChange={(event) => {
-            setSearch(event.target.value);
-            setPage(1);
-          }}
+          onChange={(event) => changeSearch(event.target.value)}
         />
         <Flex wrap gap={5} className={styles.bankTags}>
           {['全部', ...tags].map((tag) => (
-            <Tag.CheckableTag
-              key={tag}
-              checked={activeTag === tag}
-              onChange={() => {
-                setActiveTag(tag);
-                setPage(1);
-              }}
-            >
+            <Tag.CheckableTag key={tag} checked={activeTag === tag} onChange={() => changeTag(tag)}>
               {tag}
             </Tag.CheckableTag>
           ))}
@@ -61,7 +48,7 @@ export default function QuestionBankPanel() {
               expanded ? <UpOutlined aria-hidden="true" /> : <DownOutlined aria-hidden="true" />
             }
             iconPlacement="end"
-            onClick={() => setExpanded(!expanded)}
+            onClick={toggleExpanded}
           >
             {expanded ? '收起' : '展开全部'}
           </Button>
@@ -69,9 +56,7 @@ export default function QuestionBankPanel() {
       </Flex>
       <Flex vertical gap={8} className={styles.bankResults} role="list" aria-label="题库题目">
         {questions.length ? (
-          questions
-            .slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
-            .map((question) => <QuestionBankCard key={question.id} question={question} />)
+          questions.map((question) => <QuestionBankCard key={question.id} question={question} />)
         ) : (
           <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无匹配题目" />
         )}
@@ -80,8 +65,8 @@ export default function QuestionBankPanel() {
         <Pagination
           size="small"
           current={page}
-          pageSize={PAGE_SIZE}
-          total={questions.length}
+          pageSize={pageSize}
+          total={total}
           onChange={setPage}
           showSizeChanger={false}
           showLessItems

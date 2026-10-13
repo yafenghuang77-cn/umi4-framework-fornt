@@ -8,6 +8,8 @@ import {
 } from '@ant-design/icons';
 import { Button, Card, Flex, Typography } from 'antd';
 
+import { writeDragPayload } from '@/utils/nativeDrag';
+
 import { DRAG_KEY } from '../schema';
 import styles from '../styles/CanvasContainer.less';
 
@@ -54,11 +56,12 @@ export default function CanvasContainer({
             aria-label={`拖动${container.title}`}
             draggable
             onDragStart={(event) => {
-              event.dataTransfer.setData(
+              writeDragPayload(
+                event.dataTransfer,
                 DRAG_KEY,
-                JSON.stringify({ type: 'moveContainer', id: container.id }),
+                { type: 'moveContainer', id: container.id },
+                'move',
               );
-              event.dataTransfer.effectAllowed = 'move';
             }}
           />
           <Button

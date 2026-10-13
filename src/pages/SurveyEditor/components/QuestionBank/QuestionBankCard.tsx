@@ -1,5 +1,7 @@
 import { Card, Flex, Tag, Typography } from 'antd';
 
+import { writeDragPayload } from '@/utils/nativeDrag';
+
 import { questionGroups } from '../../questionCatalog';
 import { DRAG_KEY } from '../../schema';
 import styles from '../../styles/QuestionBankCard.less';
@@ -21,8 +23,7 @@ export default function QuestionBankCard({ question }: Props) {
       aria-label={question.title}
       draggable
       onDragStart={(event) => {
-        event.dataTransfer.setData(DRAG_KEY, JSON.stringify({ type: 'bankQuestion', question }));
-        event.dataTransfer.effectAllowed = 'copy';
+        writeDragPayload(event.dataTransfer, DRAG_KEY, { type: 'bankQuestion', question }, 'copy');
       }}
     >
       <Flex gap={10} align="flex-start">

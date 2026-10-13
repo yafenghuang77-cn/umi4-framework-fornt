@@ -1,4 +1,4 @@
-import { SurveyContainerType, SurveyQuestionType } from './questionCatalog';
+import { SurveyContainerType, SurveyQuestionType } from '@/constants/survey';
 
 import type { ContainerKind, QuestionKind } from './types';
 

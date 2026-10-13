@@ -3,6 +3,8 @@ import { useState } from 'react';
 import { DownOutlined, UpOutlined } from '@ant-design/icons';
 import { Badge, Button, Tree, Typography } from 'antd';
 
+import { writeDragPayload } from '@/utils/nativeDrag';
+
 import { questionKindByType } from '../catalogAdapter';
 import { questionGroups } from '../questionCatalog';
 import { DRAG_KEY } from '../schema';
@@ -50,8 +52,7 @@ export default function QuestionTypeTree() {
             onDragStart={(e) => {
               const kind = questionKindByType[item.type];
               if (kind) {
-                e.dataTransfer.setData(DRAG_KEY, JSON.stringify({ type: 'question', kind }));
-                e.dataTransfer.effectAllowed = 'copy';
+                writeDragPayload(e.dataTransfer, DRAG_KEY, { type: 'question', kind }, 'copy');
               }
             }}
             title="拖拽题型"
