@@ -1,25 +1,12 @@
 import { defineConfig } from '@umijs/max';
 import { isAbsolute, join, parse, relative, resolve, sep } from 'node:path';
 
-import devConfig from './config.dev';
 import defaultSettings from './defaultSettings';
+import environment from './env';
 import proxy from './proxy';
 import routers from './routes';
 
 const PUBLIC_PATH = '/framework/';
-const environments = {
-  dev: { appEnv: 'dev', label: 'DEV 本地开发环境' },
-  uat: { appEnv: 'uat', label: 'UAT 测试环境' },
-  pre: { appEnv: 'pre', label: 'PRE 预发环境' },
-  production: { appEnv: 'prod', label: 'PROD 生产环境' },
-} as const;
-const umiEnv = process.env.UMI_ENV || 'dev';
-
-if (!Object.hasOwn(environments, umiEnv)) {
-  throw new Error(`不支持的 UMI_ENV：${umiEnv}，请使用 dev、uat、pre 或 production`);
-}
-
-const environment = environments[umiEnv as keyof typeof environments];
 const isBuild = process.argv[2] === 'build';
 
 // Umi 加载 .env.local 后会覆盖 PORT，测试服务在这里使用独立端口。
@@ -79,8 +66,11 @@ const config = defineConfig({
   metas: [{ name: 'viewport', content: 'width=device-width, initial-scale=1' }],
   ignoreMomentLocale: true,
   manifest: {},
-  // 未指定 UMI_ENV 时默认使用 DEV；指定环境后由 Umi 合并对应配置。
-  define: devConfig.define,
+  // 仅将浏览器需要的值注入产物；其余变量只在 Node.js 配置中使用。
+  define: {
+    'process.env.APP_ENV': environment.appEnv,
+    'process.env.API_BASE_URL': environment.variables.API_BASE_URL || '/',
+  },
   exportStatic: {},
   // turbopack: {},
   alias: {
@@ -111,7 +101,7 @@ const config = defineConfig({
   // 调试面板仅在本地开发命令启用，所有构建环境均关闭。
   reactQuery: {
     queryClient: true,
-    devtool: umiEnv === 'dev',
+    devtool: environment.name === 'dev',
   },
   headScripts: [
     // 解决首次加载时白屏的问题
@@ -181,7 +171,7 @@ const config = defineConfig({
   },
   requestRecord: {},
   // 本地开发代理配置
-  proxy: proxy[umiEnv as keyof typeof proxy] || proxy.dev,
+  proxy,
   phantomDependency: { exclude: [] },
 });
 

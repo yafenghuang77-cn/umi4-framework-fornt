@@ -34,11 +34,11 @@ pnpm dev
 
 默认启动 **DEV 本地开发环境**，也可以使用 `pnpm start`。
 
-启动后访问 [http://localhost:8000/framework/welcome/](http://localhost:8000/framework/welcome/)。如果端口被占用，以终端输出的实际地址为准。开发服务支持热更新，修改代码后可在浏览器查看效果；停止服务按 `Ctrl+C`。
+启动后访问 [http://localhost:8888/framework/welcome/](http://localhost:8888/framework/welcome/)，默认端口由 `.env` 中的 `PORT` 配置。如果端口被占用，以终端输出的实际地址为准。开发服务支持热更新，修改代码后可在浏览器查看效果；停止服务按 `Ctrl+C`。
 
 ### 本地开发环境
 
-`pnpm dev` 和 `pnpm start` 使用 `config/config.dev.ts`，复用 UAT 的接口配置（包括 `UAT_API_BASE_URL`）与本地代理，仅将 `APP_ENV` 标记为 `dev`。React Query Devtools 只在 DEV 开发模式启用。
+`pnpm dev` 和 `pnpm start` 读取 `.env.dev`，将 `APP_ENV` 标记为 `dev`。DEV 的默认接口与代理目标和 UAT 一致，也可以单独修改。React Query Devtools 只在 DEV 开发模式启用。
 
 ### 按环境启动排查
 
@@ -48,7 +48,7 @@ pnpm dev
 | PRE 预发环境  | `pnpm dev:pre`  |
 | PROD 生产环境 | `pnpm dev:prod` |
 
-这些命令启动支持热更新的本地服务，分别加载对应环境的接口配置与代理。排查前请配置实际的 `UAT_API_BASE_URL`、`PRE_API_BASE_URL` 或 `PROD_API_BASE_URL`；使用相对地址时，请在 `config/proxy.ts` 配置对应代理目标。React Query Devtools 仅在 DEV 环境启用。
+这些命令启动支持热更新的本地服务，分别读取 `.env.uat`、`.env.pre`、`.env.production`。排查前请在对应文件配置实际的 `API_BASE_URL`；使用相对地址时，通过 `API_PROXY_TARGET` 配置本地代理目标。React Query Devtools 仅在 DEV 环境启用。
 
 ## 测试
 
@@ -99,11 +99,11 @@ pnpm build
 
 ### 指定环境打包
 
-| 环境          | 打包命令          | 配置文件                      | 产物目录     |
-| ------------- | ----------------- | ----------------------------- | ------------ |
-| UAT 测试环境  | `pnpm build:uat`  | `config/config.uat.ts`        | `framework/` |
-| PRE 预发环境  | `pnpm build:pre`  | `config/config.pre.ts`        | `framework/` |
-| PROD 生产环境 | `pnpm build:prod` | `config/config.production.ts` | `framework/` |
+| 环境          | 打包命令          | 环境文件          | 产物目录     |
+| ------------- | ----------------- | ----------------- | ------------ |
+| UAT 测试环境  | `pnpm build:uat`  | `.env.uat`        | `framework/` |
+| PRE 预发环境  | `pnpm build:pre`  | `.env.pre`        | `framework/` |
+| PROD 生产环境 | `pnpm build:prod` | `.env.production` | `framework/` |
 
 生产发布时执行：
 
@@ -119,7 +119,7 @@ pnpm build:prod
 BUILD_OUTPUT_PATH=framework
 ```
 
-该值为相对于项目根目录的文件夹路径，不要添加开头的 `/`。如需临时区分环境，可执行 `BUILD_OUTPUT_PATH=framework/uat pnpm build:uat`。构建会清理指定的产物目录，因此不能指向项目根目录或项目外的目录。
+该值为相对于项目根目录的文件夹路径，不要添加开头的 `/`。如需临时区分产物目录，可在 `.env.local` 中设置 `BUILD_OUTPUT_PATH=framework/uat`。Umi 会用公共环境文件覆盖同名进程变量，因此公共变量的个人覆盖应写在 `.env.local`。构建会清理指定的产物目录，因此不能指向项目根目录或项目外的目录。
 
 所有环境的构建均关闭 Source Map，发布目录会清理残留 `.map` 和 `stats.json`；各环境的本地启动仍保留开发用源码映射。浏览器兼容目标为 Chrome/Edge 100、Firefox 100、Safari 15.4 及以上，可在 `config/config.ts` 调整。
 
@@ -137,23 +137,36 @@ BUILD_OUTPUT_PATH=framework
 
 ## 接口与环境配置
 
-各环境的接口地址默认是 `/`，使用同源请求。可以直接修改对应环境配置文件，或在项目根目录创建 `.env.local` 覆盖地址：
+公共变量和业务环境变量分别维护在项目根目录：
+
+| 文件              | 用途                                      |
+| ----------------- | ----------------------------------------- |
+| `.env`            | 公共进程变量，例如端口和构建产物目录      |
+| `.env.dev`        | DEV 本地开发的接口地址和代理目标          |
+| `.env.uat`        | UAT 测试环境的接口地址和代理目标          |
+| `.env.pre`        | PRE 预发环境的接口地址和代理目标          |
+| `.env.production` | PROD 生产环境的接口地址和代理目标         |
+| `.env.*.local`    | 对应环境的个人覆盖，例如 `.env.uat.local` |
+| `.env.local`      | 公共个人覆盖，也可以统一覆盖接口与代理    |
+
+项目沿用 UAT 表示业务测试环境，因此使用 `.env.uat`。Jest / Playwright 的自动化测试配置仍由各自的配置文件管理。
+
+Umi 原生只读取 `.env` 和 `.env.local`；`config/env.ts` 根据 `UMI_ENV` 补充读取 `.env.<环境>` 和可选的 `.env.<环境>.local`。接口变量优先级从高到低为：**当前进程变量（包含 Umi 已加载的公共 `.env` / `.env.local`）→ `.env.<环境>.local` → `.env.<环境>`**。公共 `.env` 建议只放公共进程变量，接口默认值放在对应环境文件中；`.env.local` 中的接口变量会覆盖所有环境。
+
+各环境统一使用相同变量名，接口地址默认是 `/`，使用同源请求。例如修改 `.env.uat`，或创建 `.env.uat.local`：
 
 ```dotenv
-UAT_API_BASE_URL=https://uat-api.example.com
-PRE_API_BASE_URL=https://pre-api.example.com
-PROD_API_BASE_URL=https://api.example.com
+API_BASE_URL=/
 
 # 接口使用相对路径时，本地开发服务的代理目标
-# DEV 和 UAT 共用 UAT_API_PROXY_TARGET
-UAT_API_PROXY_TARGET=https://uat-api.example.com
-PRE_API_PROXY_TARGET=https://pre-api.example.com
-PROD_API_PROXY_TARGET=https://api.example.com
+API_PROXY_TARGET=https://uat-api.example.com
 ```
 
-以上域名为示例，使用时替换为实际接口地址。`.env.local` 已被 Git 忽略，适合保存个人开发配置；`.env` 用于公共进程变量。
+如果希望浏览器直接请求接口域名，可将 `API_BASE_URL` 改为实际的绝对地址，并确保后端允许跨域。代理只处理 `/api/` 路径，会去掉 `/api` 前缀再转发。
 
-启动和打包脚本通过 `UMI_ENV` 选择环境：DEV 对应 `dev`，UAT 对应 `uat`，PRE 对应 `pre`，PROD 对应 `production`。浏览器中的 `process.env.APP_ENV` 分别为 `dev`、`uat`、`pre`、`prod`，接口地址通过 `process.env.API_BASE_URL` 提供给全局 request。
+以上域名为示例，使用时替换为实际接口地址。公共及各环境默认文件纳入版本管理；`.env.local` 和 `.env.*.local` 已被 Git 忽略。原有 `UAT_API_BASE_URL`、`PRE_API_BASE_URL`、`PROD_API_BASE_URL` 及对应的 `*_API_PROXY_TARGET` 统一改为 `API_BASE_URL`、`API_PROXY_TARGET`，本地或 CI 旧配置需同步更新。
+
+启动和打包脚本通过 `UMI_ENV` 选择环境：DEV 对应 `dev`，UAT 对应 `uat`，PRE 对应 `pre`，PROD 对应 `production`。框架配置统一在 `config/config.ts` 中，浏览器中的 `process.env.APP_ENV` 分别为 `dev`、`uat`、`pre`、`prod`，接口地址通过 `process.env.API_BASE_URL` 提供给全局 request。现有启动和打包命令保持不变。
 
 环境变量在启动或打包时确定，修改后需重新启动或打包。注入浏览器代码的变量不要包含密钥。
 
@@ -180,12 +193,12 @@ pnpm exec max build
 - `config/config.ts` 中的 `base` 和 `publicPath` 均为 `/framework/`，服务器需要将静态资源映射到该路径。
 - 项目使用 browser history 路由，刷新或直接访问业务页面时，服务器需回退到应用入口 HTML。
 - 如需修改部署前缀，应同步修改配置和代码中的 Logo、图片、加载脚本等资源路径。
-- DEV 与 UAT 共用 `/api/` 代理，目标通过 `UAT_API_PROXY_TARGET` 配置。代理仅作用于本地启动服务；线上部署需由服务器配置反向代理。
+- 各环境的本地服务均提供 `/api/` 代理，目标通过对应环境文件的 `API_PROXY_TARGET` 配置。代理仅作用于本地启动服务；线上部署需由服务器配置反向代理。
 
 ## 主要目录
 
 ```text
-config/                 # 公共配置、环境配置、菜单路由与布局设置
+config/                 # 框架配置、环境文件读取、菜单路由与布局设置
   plugins/              # 路径别名同步、构建资源和部署处理插件
 src/
   app.tsx               # 应用初始化、布局和全局请求配置
