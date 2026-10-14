@@ -151,11 +151,23 @@ BUILD_OUTPUT_PATH=framework
 
 项目沿用 UAT 表示业务测试环境，因此使用 `.env.uat`。Jest / Playwright 的自动化测试配置仍由各自的配置文件管理。
 
+每个业务环境文件包含 `APP_ENV` 标识，读取时会校验它与命令指定的 `UMI_ENV` 是否匹配：
+
+| 命令                                | `UMI_ENV`    | 环境文件          | 文件中的 `APP_ENV` |
+| ----------------------------------- | ------------ | ----------------- | ------------------ |
+| `pnpm dev` / `pnpm start`           | `dev`        | `.env.dev`        | `dev`              |
+| `pnpm dev:uat` / `pnpm build:uat`   | `uat`        | `.env.uat`        | `uat`              |
+| `pnpm dev:pre` / `pnpm build:pre`   | `pre`        | `.env.pre`        | `pre`              |
+| `pnpm dev:prod` / `pnpm build:prod` | `production` | `.env.production` | `prod`             |
+
+`pnpm build` 委托给 `pnpm build:uat`，因此也读取 `.env.uat`。`UMI_ENV` 决定读取哪个文件，文件中的 `APP_ENV` 用于确认环境并注入浏览器；公共 `.env` 不设置环境标识。文件缺少标识、标识填写错误，或个人配置 / 进程变量覆盖成其他环境时，会直接报错。启动和构建时，终端都会输出 `UMI_ENV`、`APP_ENV` 和选中的文件名，便于确认命中的环境。`pnpm deadcode` 只检查未使用代码，不选择业务环境。
+
 Umi 原生只读取 `.env` 和 `.env.local`；`config/env.ts` 根据 `UMI_ENV` 补充读取 `.env.<环境>` 和可选的 `.env.<环境>.local`。接口变量优先级从高到低为：**当前进程变量（包含 Umi 已加载的公共 `.env` / `.env.local`）→ `.env.<环境>.local` → `.env.<环境>`**。公共 `.env` 建议只放公共进程变量，接口默认值放在对应环境文件中；`.env.local` 中的接口变量会覆盖所有环境。
 
 各环境统一使用相同变量名，接口地址默认是 `/`，使用同源请求。例如修改 `.env.uat`，或创建 `.env.uat.local`：
 
 ```dotenv
+APP_ENV=uat
 API_BASE_URL=/
 
 # 接口使用相对路径时，本地开发服务的代理目标

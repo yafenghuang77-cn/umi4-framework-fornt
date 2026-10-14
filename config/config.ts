@@ -16,8 +16,10 @@ if (process.argv[2] === 'dev' && process.env.PLAYWRIGHT_TEST === '1') {
   process.env.HOST = '127.0.0.1';
 }
 
-if (process.argv[2] === 'dev') {
-  process.stdout.write(`\n[启动环境] ${environment.label}（${environment.appEnv}）\n\n`);
+if (process.argv[2] === 'dev' || isBuild) {
+  process.stdout.write(
+    `\n[${isBuild ? '构建' : '启动'}环境] ${environment.label} | UMI_ENV=${environment.name} | APP_ENV=${environment.appEnv} | 文件=.env.${environment.name}\n\n`,
+  );
 }
 
 const config = defineConfig({
