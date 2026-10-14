@@ -1,5 +1,7 @@
 import { type RequestInterceptorAxios } from '@umijs/max';
 
+import { startRequest } from '@/utils/monitoring/request';
+
 import { getToken } from './token';
 
 /** skipAuth 可跳过自动鉴权；调用方显式设置的 Authorization 优先。 */
@@ -9,11 +11,11 @@ export const attachToken: RequestInterceptorAxios = (options) => {
     (key) => key.toLowerCase() === 'authorization',
   );
 
-  return {
+  return startRequest({
     ...options,
     headers: {
       ...options.headers,
       ...(token && !hasAuthorization ? { Authorization: `Bearer ${token}` } : {}),
     },
-  };
+  });
 };

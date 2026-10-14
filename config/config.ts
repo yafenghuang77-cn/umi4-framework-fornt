@@ -72,6 +72,15 @@ const config = defineConfig({
   define: {
     'process.env.APP_ENV': environment.appEnv,
     'process.env.API_BASE_URL': environment.variables.API_BASE_URL || '/',
+    MONITORING_CONFIG: {
+      enabled: environment.variables.MONITORING_ENABLED !== 'false',
+      dsn: environment.variables.SENTRY_DSN || '',
+      environment: environment.appEnv,
+      release: environment.variables.APP_RELEASE || 'local',
+      tracesSampleRate: Number(environment.variables.SENTRY_TRACES_SAMPLE_RATE || '0.1'),
+      ingestUrl: environment.variables.MONITORING_INGEST_URL || '',
+      queryUrl: environment.variables.MONITORING_QUERY_URL || '',
+    },
   },
   exportStatic: {},
   // turbopack: {},

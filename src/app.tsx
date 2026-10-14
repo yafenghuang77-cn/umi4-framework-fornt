@@ -8,23 +8,31 @@ import {
   SettingOutlined,
   UserOutlined,
 } from '@ant-design/icons';
+import { ErrorBoundary } from '@sentry/react';
 import {
   history,
   type RunTimeLayoutConfig,
   type RuntimeReactQueryType,
   SelectLang,
 } from '@umijs/max';
-import { Avatar, Dropdown } from 'antd';
+import { Avatar, Button, Dropdown, Result } from 'antd';
 
 import BrandSwitcher from '@/components/BrandSwitcher';
 import LayoutSettings from '@/components/LayoutSettings';
 import NetworkStatus from '@/components/NetworkStatus';
+import { initMonitoring, recordReactError, trackRoute } from '@/utils/monitoring';
 import { redirectToLogin, requestConfig } from '@/utils/request';
 import { removeToken } from '@/utils/request/token';
 import { retryTimedOutQuery } from '@/utils/requestRetry';
 import { loadPersistedSettings } from '@/utils/settings';
 
 export const request = requestConfig;
+
+initMonitoring();
+
+export function onRouteChange() {
+  trackRoute(window.location.pathname);
+}
 
 export const reactQuery: RuntimeReactQueryType = {
   queryClient: {
@@ -53,7 +61,19 @@ export function rootContainer(container: ReactNode) {
   return (
     <>
       <NetworkStatus />
-      {container}
+      <ErrorBoundary
+        onError={recordReactError}
+        fallback={
+          <Result
+            status="error"
+            title="页面出现异常"
+            subTitle="页面暂时无法显示，请刷新后重试。"
+            extra={<Button onClick={() => window.location.reload()}>刷新页面</Button>}
+          />
+        }
+      >
+        {container}
+      </ErrorBoundary>
     </>
   );
 }

@@ -63,6 +63,16 @@ export default [
     ],
   },
   {
+    name: '性能统计',
+    icon: 'DashboardOutlined',
+    path: '/monitoring',
+    routes: [
+      { path: '/monitoring', redirect: '/monitoring/overview' },
+      { name: '统计概览', path: '/monitoring/overview', component: './Monitoring/Overview' },
+      { name: '数据查询', path: '/monitoring/query', component: './Monitoring' },
+    ],
+  },
+  {
     name: '个人中心',
     path: '/account/center',
     component: './Placeholder',

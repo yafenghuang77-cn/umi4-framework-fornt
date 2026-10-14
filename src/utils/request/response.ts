@@ -1,5 +1,7 @@
 import { type ErrorInterceptor, type ResponseInterceptor } from '@umijs/max';
 
+import { finishRequest } from '@/utils/monitoring/request';
+
 import { isUnauthorizedResponse } from './auth';
 import { isBinaryResponse } from './binary';
 import { BusinessError } from './error';
@@ -27,6 +29,13 @@ export function resolveResponse<T = unknown>(
 
 // Umi 默认返回 response.data；getResponse: true 时仍返回完整 AxiosResponse。
 export const handleResponse: ResponseInterceptor = (response) => {
+  const businessFailed =
+    isUnauthorizedResponse(response.data) ||
+    (typeof response.data === 'object' &&
+      response.data !== null &&
+      'success' in response.data &&
+      response.data.success === false);
+  finishRequest(response.config, response.status, businessFailed);
   // 下载/流响应直接透传，跳过业务码判断和统一响应转换。
   const responseType = response.config?.responseType;
   if (
@@ -60,4 +69,11 @@ export const handleResponse: ResponseInterceptor = (response) => {
 };
 
 // 必须继续拒绝，让 errorHandler 和调用方 catch / React Query 收到原始错误。
-export const rejectResponse: ErrorInterceptor = (error) => Promise.reject(error);
+export const rejectResponse: ErrorInterceptor = (error) => {
+  const failure = error as {
+    config?: Parameters<typeof finishRequest>[0];
+    response?: { status: number };
+  };
+  finishRequest(failure.config, failure.response?.status || 0, true);
+  return Promise.reject(error);
+};

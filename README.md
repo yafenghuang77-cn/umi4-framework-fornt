@@ -8,6 +8,8 @@
 
 接口请求使用 Umi request，服务端数据缓存使用 React Query；代码规范由 ESLint、Prettier 和 Stylelint 统一管理。更多依赖用途见 [插件与依赖说明](docs/插件与依赖说明.md)。
 
+性能监控使用 Sentry 与 web-vitals，内置“性能统计”目录菜单，包含图表概览（`/framework/monitoring/overview`）与数据查询（`/framework/monitoring/query`），可查看当前浏览器真实数据、日志、分位数和每日上报状态。默认无需后端即可使用本地统计；Sentry DSN、自建接口、每日补报规则及后端协议见 [性能统计与监控说明](docs/性能统计与监控说明.md)，配置模板见 `.env.monitoring.example`。
+
 单元与组件测试使用 Jest 和 React Testing Library，执行 `pnpm test`；监听和覆盖率命令见 [Jest 测试说明](docs/Jest测试说明.md)。端到端测试使用 Playwright，执行 `pnpm test:e2e` 自动启动独立测试服务并运行 Chromium 测试。安装、UI 模式、报告和新增用例说明见 [Playwright 测试说明](docs/Playwright测试说明.md)。
 
 ## 开发准备

@@ -12,6 +12,7 @@ import {
   loadRemoteFile,
   MAX_FILE_SIZE,
 } from '@/utils/file';
+import { startMeasure } from '@/utils/monitoring';
 
 import { PreviewError, PreviewLoading } from './Feedback';
 import styles from './index.less';
@@ -139,14 +140,17 @@ function RemotePreview({ url, fileName }: { url: string; fileName?: string }) {
   const [state, setState] = useState<{ url: string; name?: string; file?: File; error?: string }>();
   useEffect(() => {
     const controller = new AbortController();
+    const finish = startMeasure('PREVIEW_DOWNLOAD');
     setState(undefined);
     loadRemoteFile(url, fileName || '', controller.signal).then(
       (file) => {
+        finish(controller.signal.aborted ? 'cancelled' : 'success');
         if (!controller.signal.aborted) {
           setState({ url, name: fileName, file });
         }
       },
       (error: unknown) => {
+        finish(controller.signal.aborted ? 'cancelled' : 'error');
         if (!controller.signal.aborted) {
           setState({
             url,
@@ -161,7 +165,10 @@ function RemotePreview({ url, fileName }: { url: string; fileName?: string }) {
         }
       },
     );
-    return () => controller.abort();
+    return () => {
+      controller.abort();
+      finish('cancelled');
+    };
   }, [url, fileName, attempt]);
   if (!state || state.url !== url || state.name !== fileName) {
     return <PreviewLoading />;

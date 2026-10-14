@@ -1,0 +1,55 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-bottom: 24px;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.routeSelect {
+  min-width: 210px;
+  max-width: 100%;
+}
+
+.versionSelect {
+  min-width: 140px;
+}
+
+.metricSelect {
+  min-width: 240px;
+  max-width: 100%;
+}
+
+.chart {
+  height: 320px;
+  width: 100%;
+  min-width: 0;
+}
+
+.emptyChart {
+  min-height: 320px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.status {
+  margin-top: 12px;
+}
+
+.logMessage {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 575px) {
+  .toolbar {
+    flex-direction: column;
+  }
+}
