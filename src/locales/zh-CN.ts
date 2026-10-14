@@ -1,1 +1,1 @@
-export default { 'welcome.title': '欢迎使用 Ant Design Pro' };
+export default { 'welcome.title': '项目工作台' };
