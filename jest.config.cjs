@@ -2,6 +2,8 @@ const { configUmiAlias, createConfig } = require('@umijs/max/test');
 
 /** @returns {Promise<import('jest').Config>} */
 module.exports = async () => {
+  // Knip 也会加载此配置；未指定 NODE_ENV 时避免 Umi 生成 .umi-undefined。
+  process.env.NODE_ENV ??= 'test';
   const config = await configUmiAlias(
     createConfig({
       target: 'browser',
