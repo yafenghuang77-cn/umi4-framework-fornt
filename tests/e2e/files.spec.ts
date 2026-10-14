@@ -1,5 +1,5 @@
 import { expect, type Page, test } from '@playwright/test';
-import { Document, Packer, Paragraph } from 'docx';
+import { Document, LastRenderedPageBreak, Packer, Paragraph, TextRun } from 'docx';
 import ExcelJS from 'exceljs';
 import JSZip from 'jszip';
 import { PDFDocument, StandardFonts } from 'pdf-lib';
@@ -69,7 +69,13 @@ test('公共组件预览真实 PDF、DOCX、XLSX 文件', async ({ page }) => {
     'application/pdf',
   );
   await expect(dialog.getByText('Hello PDF', { exact: true })).toBeVisible();
+  await expect(dialog.getByRole('button', { name: '上一页', exact: true })).toBeDisabled();
   await dialog.getByRole('button', { name: '下一页', exact: true }).click();
+  await expect(dialog.getByText('Second page', { exact: true })).toBeVisible();
+  await expect(dialog.getByRole('button', { name: '下一页', exact: true })).toBeDisabled();
+  await dialog.getByRole('button', { name: '上一页', exact: true }).click();
+  await expect(dialog.getByText('Hello PDF', { exact: true })).toBeVisible();
+  await dialog.getByRole('spinbutton', { name: 'PDF 页码', exact: true }).fill('2');
   await expect(dialog.getByText('Second page', { exact: true })).toBeVisible();
   await dialog.getByRole('button', { name: '放大', exact: true }).click();
   await expect(dialog.getByText('125%')).toBeVisible();
@@ -159,8 +165,110 @@ test('PPTX 按文稿顺序展示幻灯片文字', async ({ page }) => {
     await zip.generateAsync({ type: 'nodebuffer' }),
   );
   await expect(dialog.getByText('第一页内容', { exact: true })).toBeVisible();
+  await expect(dialog.getByRole('button', { name: '上一页', exact: true })).toBeDisabled();
   await dialog.getByRole('button', { name: '下一页', exact: true }).click();
   await expect(dialog.getByText('第二页内容', { exact: true })).toBeVisible();
+  await expect(dialog.getByRole('button', { name: '下一页', exact: true })).toBeDisabled();
+  await dialog.getByRole('button', { name: '上一页', exact: true }).click();
+  await expect(dialog.getByText('第一页内容', { exact: true })).toBeVisible();
+});
+
+test('Word 识别分页标记，按钮切换时只显示当前页', async ({ page }) => {
+  await page.goto('/framework/files/list');
+  const word = new Document({
+    sections: [
+      {
+        children: [
+          new Paragraph('Word 第一页'),
+          new Paragraph({ text: 'Word 第二页', pageBreakBefore: true }),
+          new Paragraph({
+            children: [new TextRun({ children: [new LastRenderedPageBreak(), 'Word 第三页'] })],
+          }),
+        ],
+      },
+    ],
+  });
+  const dialog = await importAndPreview(page, 'paged.docx', await Packer.toBuffer(word));
+  const frame = page.frameLocator('iframe[title="Word 预览：paged.docx"]');
+  await expect(dialog.getByText('第 1 / 3 页', { exact: true })).toBeVisible();
+  await expect(frame.getByText('Word 第一页', { exact: true })).toBeVisible();
+  await expect(frame.getByText('Word 第二页', { exact: true })).not.toBeVisible();
+  await expect(dialog.getByRole('button', { name: '上一页', exact: true })).toBeDisabled();
+  await dialog.getByRole('button', { name: '下一页', exact: true }).click();
+  await expect(frame.getByText('Word 第二页', { exact: true })).toBeVisible();
+  await expect(frame.getByText('Word 第一页', { exact: true })).not.toBeVisible();
+  await dialog.getByRole('button', { name: '下一页', exact: true }).click();
+  await expect(frame.getByText('Word 第三页', { exact: true })).toBeVisible();
+  await expect(dialog.getByRole('button', { name: '下一页', exact: true })).toBeDisabled();
+  await dialog.getByRole('button', { name: '上一页', exact: true }).click();
+  await expect(frame.getByText('Word 第二页', { exact: true })).toBeVisible();
+});
+
+test('Excel 和 CSV 按行翻页，切换工作表回到第一页', async ({ page }) => {
+  await page.goto('/framework/files/list');
+  const workbook = new ExcelJS.Workbook();
+  workbook
+    .addWorksheet('明细')
+    .addRows(Array.from({ length: 45 }, (_, index) => [`记录-${index + 1}`]));
+  workbook.addWorksheet('摘要').addRow(['摘要内容']);
+  let dialog = await importAndPreview(
+    page,
+    'paged.xlsx',
+    Buffer.from(await workbook.xlsx.writeBuffer()),
+  );
+  await expect(dialog.getByRole('cell', { name: '记录-1', exact: true })).toBeVisible();
+  await expect(dialog.getByRole('cell', { name: '记录-21', exact: true })).toHaveCount(0);
+  await dialog.getByRole('button', { name: '下一页', exact: true }).click();
+  await expect(dialog.getByRole('cell', { name: '记录-21', exact: true })).toBeVisible();
+  await expect(dialog.getByRole('cell', { name: '记录-1', exact: true })).toHaveCount(0);
+  await dialog.getByRole('button', { name: '下一页', exact: true }).click();
+  await expect(dialog.getByRole('cell', { name: '记录-45', exact: true })).toBeVisible();
+  await expect(dialog.getByRole('button', { name: '下一页', exact: true })).toBeDisabled();
+  await dialog.getByRole('button', { name: '上一页', exact: true }).click();
+  await expect(dialog.getByRole('cell', { name: '记录-21', exact: true })).toBeVisible();
+  await dialog.getByRole('tab', { name: '摘要', exact: true }).click();
+  await expect(dialog.getByRole('cell', { name: '摘要内容', exact: true })).toBeVisible();
+  await expect(dialog.getByRole('button', { name: '上一页', exact: true })).toBeDisabled();
+  await dialog.getByRole('tab', { name: '明细', exact: true }).click();
+  await expect(dialog.getByRole('cell', { name: '记录-1', exact: true })).toBeVisible();
+  await dialog.getByRole('button', { name: '关闭', exact: true }).click();
+  dialog = await importAndPreview(
+    page,
+    'paged.csv',
+    Buffer.from(Array.from({ length: 21 }, (_, index) => `CSV-${index + 1}`).join('\n')),
+  );
+  await dialog.getByRole('button', { name: '下一页', exact: true }).click();
+  await expect(dialog.getByRole('cell', { name: 'CSV-21', exact: true })).toBeVisible();
+  await expect(dialog.getByRole('button', { name: '下一页', exact: true })).toBeDisabled();
+  await dialog.getByRole('button', { name: '上一页', exact: true }).click();
+  await expect(dialog.getByRole('cell', { name: 'CSV-1', exact: true })).toBeVisible();
+});
+
+test('ZIP 条目用上一页下一页翻页，并预览末页的文件', async ({ page }) => {
+  await page.goto('/framework/files/list');
+  const zip = new JSZip();
+  for (let index = 1; index <= 12; index += 1) {
+    zip.file(`file-${String(index).padStart(2, '0')}.txt`, `ZIP 内容 ${index}`);
+  }
+  const dialog = await importAndPreview(
+    page,
+    'paged.zip',
+    await zip.generateAsync({ type: 'nodebuffer' }),
+  );
+  await expect(dialog.getByRole('cell', { name: 'file-01.txt', exact: true })).toBeVisible();
+  await expect(dialog.getByRole('cell', { name: 'file-11.txt', exact: true })).toHaveCount(0);
+  await dialog.getByRole('button', { name: '下一页', exact: true }).click();
+  await expect(dialog.getByRole('cell', { name: 'file-11.txt', exact: true })).toBeVisible();
+  await expect(dialog.getByRole('button', { name: '下一页', exact: true })).toBeDisabled();
+  await dialog.getByRole('button', { name: '上一页', exact: true }).click();
+  await expect(dialog.getByRole('cell', { name: 'file-01.txt', exact: true })).toBeVisible();
+  await dialog.getByRole('button', { name: '下一页', exact: true }).click();
+  await dialog
+    .getByRole('row')
+    .filter({ hasText: 'file-11.txt' })
+    .getByRole('button', { name: '预览', exact: true })
+    .click();
+  await expect(dialog.getByText('ZIP 内容 11', { exact: true })).toBeVisible();
 });
 
 test('URL 预览支持文件名提示、失败重试和下载', async ({ page }) => {

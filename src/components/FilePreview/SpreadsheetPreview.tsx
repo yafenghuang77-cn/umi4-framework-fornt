@@ -14,6 +14,7 @@ import {
 
 import { PreviewError, PreviewLoading } from './Feedback';
 import styles from './index.less';
+import PreviewPagination from './PreviewPagination';
 import { usePreview } from './usePreview';
 
 interface PreviewSheet {
@@ -21,6 +22,8 @@ interface PreviewSheet {
   rows: string[][];
   truncated: boolean;
 }
+
+const ROWS_PER_PAGE = 20;
 
 function cellText(value: CellValue): string {
   if (value == null) {
@@ -95,6 +98,7 @@ function columnLabel(index: number): string {
 export default function SpreadsheetPreview({ file }: { file: File }) {
   const state = usePreview(file, loadSheets);
   const [active, setActive] = useState('0');
+  const [page, setPage] = useState(1);
   if (!state) {
     return <PreviewLoading />;
   }
@@ -106,11 +110,17 @@ export default function SpreadsheetPreview({ file }: { file: File }) {
   }
   const sheet = state.value[Number(active)] || state.value[0];
   const columns = Math.max(0, ...sheet.rows.map((row) => row.length));
+  const total = Math.ceil(sheet.rows.length / ROWS_PER_PAGE);
+  const current = Math.min(page, total || 1);
+  const offset = (current - 1) * ROWS_PER_PAGE;
   return (
     <>
       <Tabs
         activeKey={active}
-        onChange={setActive}
+        onChange={(key) => {
+          setActive(key);
+          setPage(1);
+        }}
         items={state.value.map((item, index) => ({ key: String(index), label: item.name }))}
       />
       {sheet.truncated && (
@@ -119,25 +129,30 @@ export default function SpreadsheetPreview({ file }: { file: File }) {
       {!sheet.rows.length ? (
         <Empty description="工作表为空" />
       ) : (
-        <Table<{ id: number; cells: string[] }>
-          key={active}
-          rowKey="id"
-          size="small"
-          bordered
-          dataSource={sheet.rows.map((cells, id) => ({ id, cells }))}
-          pagination={{ defaultPageSize: 20, showSizeChanger: true }}
-          scroll={{ x: 'max-content', y: 400 }}
-          columns={[
-            { title: '行号', dataIndex: 'id', width: 70, render: (id: number) => id + 1 },
-            ...Array.from({ length: columns }, (_, index) => ({
-              title: columnLabel(index),
-              key: String(index),
-              width: 160,
-              className: styles.sheetCell,
-              render: (_: unknown, row: { cells: string[] }) => row.cells[index] || '',
-            })),
-          ]}
-        />
+        <>
+          <PreviewPagination label="表格" current={current} total={total} onChange={setPage} />
+          <Table<{ id: number; cells: string[] }>
+            key={`${active}:${current}`}
+            rowKey="id"
+            size="small"
+            bordered
+            dataSource={sheet.rows
+              .slice(offset, offset + ROWS_PER_PAGE)
+              .map((cells, index) => ({ id: offset + index, cells }))}
+            pagination={false}
+            scroll={{ x: 'max-content', y: 400 }}
+            columns={[
+              { title: '行号', dataIndex: 'id', width: 70, render: (id: number) => id + 1 },
+              ...Array.from({ length: columns }, (_, index) => ({
+                title: columnLabel(index),
+                key: String(index),
+                width: 160,
+                className: styles.sheetCell,
+                render: (_: unknown, row: { cells: string[] }) => row.cells[index] || '',
+              })),
+            ]}
+          />
+        </>
       )}
       <p className={styles.note}>
         表格展示单元格内容；公式使用文件中已保存的结果，不在浏览器内计算。

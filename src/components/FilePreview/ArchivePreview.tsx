@@ -8,6 +8,7 @@ import { downloadFile } from '@/utils/file';
 import { readArchiveEntry } from './archive';
 import { PreviewError, PreviewLoading } from './Feedback';
 import styles from './index.less';
+import PreviewPagination from './PreviewPagination';
 import { usePreview } from './usePreview';
 
 async function loadArchive(file: File) {
@@ -26,6 +27,7 @@ export default function ArchivePreview({
 }) {
   const state = usePreview(file, loadArchive);
   const [busy, setBusy] = useState<string>();
+  const [page, setPage] = useState(1);
   const { message } = App.useApp();
   async function extract(entry: JSZipObject, preview: boolean) {
     setBusy(entry.name);
@@ -49,6 +51,7 @@ export default function ArchivePreview({
   if (state.error) {
     return <PreviewError message={state.error} />;
   }
+  const entries = state.value?.slice(0, 1000) || [];
   return (
     <>
       <p className={styles.note}>
@@ -57,11 +60,19 @@ export default function ArchivePreview({
       {(state.value?.length || 0) > 1000 && (
         <Alert type="info" title="仅展示前 1000 个条目，完整压缩包请下载查看。" />
       )}
+      <PreviewPagination
+        label="ZIP 条目"
+        current={page}
+        total={Math.ceil(entries.length / 10)}
+        onChange={setPage}
+        disabled={Boolean(busy)}
+      />
       <Table<JSZipObject>
+        key={page}
         rowKey="name"
         size="small"
-        dataSource={state.value?.slice(0, 1000)}
-        pagination={{ pageSize: 10 }}
+        dataSource={entries.slice((page - 1) * 10, page * 10)}
+        pagination={false}
         scroll={{ x: 500 }}
         columns={[
           {

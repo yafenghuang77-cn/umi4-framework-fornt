@@ -3,11 +3,12 @@ import 'react-pdf/dist/Page/TextLayer.css';
 
 import { useEffect, useRef, useState } from 'react';
 
-import { Button, InputNumber, Space } from 'antd';
+import { Button } from 'antd';
 import { Document, Page, pdfjs } from 'react-pdf';
 
 import { PreviewError, PreviewLoading } from './Feedback';
 import styles from './index.less';
+import PreviewPagination from './PreviewPagination';
 
 const assetPath = `/framework/pdfjs/${pdfjs.version}/`;
 pdfjs.GlobalWorkerOptions.workerSrc = `${assetPath}pdf.worker.min.mjs`;
@@ -38,21 +39,7 @@ export default function PdfPreview({ file }: { file: File }) {
   }, []);
   return (
     <div ref={container}>
-      <Space wrap className={styles.toolbar}>
-        <Button onClick={() => setPage(page - 1)} disabled={page <= 1}>
-          上一页
-        </Button>
-        <InputNumber
-          aria-label="PDF 页码"
-          min={1}
-          max={pages || 1}
-          value={page}
-          onChange={(value) => value && setPage(value)}
-        />
-        <span>/ {pages} 页</span>
-        <Button onClick={() => setPage(page + 1)} disabled={page >= pages}>
-          下一页
-        </Button>
+      <PreviewPagination label="PDF " current={page} total={pages} onChange={setPage} showJump>
         <Button
           aria-label="缩小"
           onClick={() => setZoom(Math.max(0.5, zoom - 0.25))}
@@ -68,7 +55,7 @@ export default function PdfPreview({ file }: { file: File }) {
         >
           放大
         </Button>
-      </Space>
+      </PreviewPagination>
       <div className={styles.pdfCanvas}>
         {passwordRequired ? (
           <PreviewError message="此 PDF 需要密码，请下载后使用 PDF 软件打开。" />

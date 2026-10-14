@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { Alert, Button, Empty, Space } from 'antd';
+import { Alert, Empty } from 'antd';
 import JSZip, { type JSZipObject } from 'jszip';
 
 import { MAX_OFFICE_SIZE, MAX_TEXT_SIZE } from '@/utils/file';
@@ -8,6 +8,7 @@ import { MAX_OFFICE_SIZE, MAX_TEXT_SIZE } from '@/utils/file';
 import { readArchiveEntry } from './archive';
 import { PreviewError, PreviewLoading } from './Feedback';
 import styles from './index.less';
+import PreviewPagination from './PreviewPagination';
 import { usePreview } from './usePreview';
 
 async function loadSlides(file: File) {
@@ -59,7 +60,7 @@ async function loadSlides(file: File) {
 
 export default function PresentationPreview({ file }: { file: File }) {
   const state = usePreview(file, loadSlides);
-  const [page, setPage] = useState(0);
+  const [page, setPage] = useState(1);
   if (!state) {
     return <PreviewLoading />;
   }
@@ -77,20 +78,15 @@ export default function PresentationPreview({ file }: { file: File }) {
       />
       {slides.length ? (
         <>
-          <Space className={styles.toolbar}>
-            <Button disabled={page === 0} onClick={() => setPage(page - 1)}>
-              上一页
-            </Button>
-            <span>
-              第 {page + 1} / {slides.length} 页
-            </span>
-            <Button disabled={page >= slides.length - 1} onClick={() => setPage(page + 1)}>
-              下一页
-            </Button>
-          </Space>
+          <PreviewPagination
+            label="PPTX "
+            current={page}
+            total={slides.length}
+            onChange={setPage}
+          />
           <div className={styles.slide}>
-            {slides[page]?.length ? (
-              slides[page].map((text, index) => <p key={index}>{text}</p>)
+            {slides[page - 1]?.length ? (
+              slides[page - 1].map((text, index) => <p key={index}>{text}</p>)
             ) : (
               <Empty description="此页没有可提取的文字" />
             )}
