@@ -235,6 +235,8 @@ docs/                   # 依赖、测试、路径别名和部署说明
 
 新增页面时，在 `src/pages/` 创建页面组件，再到 `config/routes.ts` 注册路由和菜单。布局默认设置位于 `config/defaultSettings.ts`。
 
+文件管理模块通过“文件管理 → 文件列表”进入 `/files/list`，点击“新增文件”在抽屉中选择文件并确认添加，也支持 URL 文件预览。公共组件 `@/components/FilePreview` 可直接传入 `file` 或 `url`，详见[文件预览模块说明](./docs/文件预览模块说明.md)。
+
 ## 路径别名
 
 源码可以通过 `@/` 引用，例如 `@/utils/request`；同时提供 `@root`、`@components`、`@pages`、`@utils`、`@models`、`@locales`、`@constants` 和 `@public` 等目录别名。类型文件使用 `@/types/xxx`。

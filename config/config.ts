@@ -114,6 +114,7 @@ const config = defineConfig({
     '@umijs/request-record',
     join(__dirname, 'plugins/sync-aliases.ts'),
     join(__dirname, 'plugins/build-assets.ts'),
+    join(__dirname, 'plugins/pdf-assets.ts'),
     join(__dirname, 'plugins/prepare-deploy.ts'),
   ],
   openAPI: [

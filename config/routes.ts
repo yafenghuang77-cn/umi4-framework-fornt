@@ -54,6 +54,15 @@ export default [
     ],
   },
   {
+    name: '文件管理',
+    icon: 'FolderOpenOutlined',
+    path: '/files',
+    routes: [
+      { path: '/files', redirect: '/files/list' },
+      { name: '文件列表', path: '/files/list', component: './Files' },
+    ],
+  },
+  {
     name: '个人中心',
     path: '/account/center',
     component: './Placeholder',

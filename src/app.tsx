@@ -39,7 +39,7 @@ export const reactQuery: RuntimeReactQueryType = {
         refetchOnReconnect: true,
         // 仅超时自动重试，最多额外请求 5 次。
         retry: retryTimedOutQuery,
-        retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30 * 1000),
+        retryDelay: (attemptIndex: number) => Math.min(1000 * 2 ** attemptIndex, 30 * 1000),
       },
       mutations: {
         // 避免新增、更新等提交因自动重试而重复执行。

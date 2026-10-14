@@ -23,3 +23,6 @@
 /.prettiercache
 
 /framework
+
+# 从 react-pdf 的依赖生成，由 Umi 复制到发布目录。
+/public/pdfjs

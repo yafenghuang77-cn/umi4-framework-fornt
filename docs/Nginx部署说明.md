@@ -83,8 +83,14 @@ server {
         return 301 /framework/;
     }
 
-    # 静态资源不存在时返回 404，避免将 HTML 当成 JS/CSS 返回。
-    location ~* ^/framework/.*\.(js|css|svg|png|jpg|jpeg|gif|webp|ico|json|txt|xml|woff2?|ttf)$ {
+    # PDF 模块 Worker 必须以 JavaScript MIME 返回。
+    location ~* ^/framework/pdfjs/.*\.mjs$ {
+        types { application/javascript mjs; }
+        try_files $uri =404;
+    }
+
+    # 静态资源不存在时返回 404，避免将 HTML 当成 JS/CSS/PDF.js 数据返回。
+    location ~* ^/framework/.*\.(js|css|svg|png|jpg|jpeg|gif|webp|ico|json|txt|xml|woff2?|ttf|wasm|bcmap|pfb)$ {
         try_files $uri =404;
     }
 
