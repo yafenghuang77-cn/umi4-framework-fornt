@@ -20,16 +20,6 @@ export default function MonitoringFilters({
   const { message } = App.useApp();
   return (
     <>
-      <Alert
-        showIcon
-        type="info"
-        title={data.source === 'local' ? '当前数据范围：此浏览器' : '当前数据范围：服务端查询结果'}
-        description={
-          data.source === 'local'
-            ? '真实采集数据，仅代表此浏览器，最多保留 30 天 / 10,000 条。配置查询接口后可查看全站数据。'
-            : '访问范围由服务端权限决定，查询失败不会使用本地数据代替。'
-        }
-      />
       {!monitoringConfig.enabled && (
         <Alert showIcon type="warning" title="监控采集已关闭，当前仅展示历史数据。" />
       )}

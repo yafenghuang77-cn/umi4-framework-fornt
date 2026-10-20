@@ -1,0 +1,93 @@
+.page {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  height: 100%;
+  gap: 0;
+  min-width: 0;
+  min-height: 0;
+}
+
+.viewport {
+  min-height: 0;
+  overflow: hidden;
+}
+
+:global(.workspace-page) .container,
+:global(.workspace-page) .container :global(.ant-pro-grid-content),
+:global(.workspace-page) .container :global(.ant-pro-grid-content-children),
+:global(.workspace-page) .container :global(.ant-pro-page-container-children-container) {
+  height: 100%;
+  min-height: 0;
+  flex: 1 1 0;
+}
+
+.container :global(.ant-pro-page-container-children-container) {
+  padding: 0;
+}
+
+.tabs {
+  flex: none;
+  margin-bottom: 16px;
+}
+
+.list {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.list > :global(.ant-pro-card:last-child) {
+  flex: 1;
+  min-height: 0;
+}
+
+.list > :global(.ant-pro-card:last-child > .ant-pro-card-body) {
+  padding-bottom: 0;
+}
+
+.list :global(.ant-table-body) {
+  height: var(--table-body-height);
+  overscroll-behavior: contain;
+}
+
+.list :global(.ant-table-pagination.ant-pagination) {
+  display: flex;
+  flex: none;
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0;
+  padding-block: 16px;
+  border-top: 1px solid var(--ant-color-border-secondary, #f0f0f0);
+  background: var(--ant-color-bg-container, #fff);
+}
+
+.tabs :global(.ant-tabs-nav) {
+  margin-bottom: 0;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 16px;
+}
+
+.treePanel {
+  padding: 16px;
+  margin-top: 12px;
+  border: 1px solid var(--ant-color-border-secondary, #f0f0f0);
+  border-radius: 8px;
+}
+
+.drawerFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+@media (max-width: 575px) {
+  .formGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

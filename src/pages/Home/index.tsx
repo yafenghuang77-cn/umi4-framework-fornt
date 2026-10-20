@@ -41,10 +41,10 @@ const modules = [
     icon: TeamOutlined,
   },
   {
-    title: '权限管理',
-    description: '查看已有页面资源；角色数据与实际访问权限需要接入业务服务。',
-    status: '待接入权限',
-    ready: false,
+    title: '权限配置',
+    description: '维护角色绑定菜单与用户绑定角色，预览用户的有效菜单范围。',
+    status: '配置页面',
+    ready: true,
     path: '/admin/permissions',
     icon: SafetyCertificateOutlined,
   },
@@ -163,7 +163,7 @@ export default function HomePage() {
             <ul className={styles.notes}>
               <li>
                 <strong>业务接入</strong>
-                <p>登录使用模拟实现；用户、角色、用户分组及配置页面需按业务需求接入或完善。</p>
+                <p>登录使用模拟实现；菜单与角色配置已提供交互页面，实际访问控制需接入业务服务。</p>
               </li>
               <li>
                 <strong>品牌选择</strong>

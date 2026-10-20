@@ -14,13 +14,18 @@ export default [
     component: './Home',
   },
   {
-    name: '系统管理',
+    name: '系统设置',
     icon: 'SettingOutlined',
     path: '/admin',
     routes: [
-      { path: '/admin', redirect: '/admin/permissions' },
+      { path: '/admin', redirect: '/admin/menus' },
       {
-        name: '权限管理',
+        name: '菜单配置',
+        path: '/admin/menus',
+        component: './SystemSettings/MenuConfig',
+      },
+      {
+        name: '权限配置',
         path: '/admin/permissions',
         component: './Permissions',
       },
