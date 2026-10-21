@@ -6,6 +6,13 @@ export default [
     layout: false,
     hideInMenu: true,
   },
+  {
+    name: '注册',
+    path: '/user/register',
+    component: './Register',
+    layout: false,
+    hideInMenu: true,
+  },
   { path: '/', redirect: '/welcome' },
   {
     name: '首页',

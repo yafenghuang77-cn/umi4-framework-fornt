@@ -188,11 +188,42 @@
 }
 
 .help {
-  margin: 24px 0 32px;
+  margin: 0 0 32px;
   color: var(--ant-color-text-secondary, #64748b);
   font-size: 14px;
   line-height: 1.7;
   text-align: center;
+}
+
+.switchAccount {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin: 16px 0;
+  color: var(--ant-color-text-secondary, #64748b);
+  font-size: 14px;
+}
+
+.accountLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 8px;
+  border-radius: 6px;
+  color: var(--ant-color-primary-text, #0958d9);
+
+  &:hover {
+    color: var(--ant-color-primary-text-hover, #4096ff);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--ant-color-primary, #1677ff);
+    outline-offset: 2px;
+  }
 }
 
 .security {
