@@ -2,20 +2,23 @@ import { type RequestInterceptorAxios } from '@umijs/max';
 
 import { startRequest } from '@/utils/monitoring/request';
 
-import { getToken } from './token';
+import { getToken, getTokenHeader } from './token';
 
-/** skipAuth 可跳过自动鉴权；调用方显式设置的 Authorization 优先。 */
+/** 按后端返回的名称及前缀注入 Token；显式设置的同名请求头优先。 */
 export const attachToken: RequestInterceptorAxios = (options) => {
   const token = options.skipAuth ? null : getToken();
+  const { tokenName, tokenPrefix } = getTokenHeader();
   const hasAuthorization = Object.keys(options.headers ?? {}).some(
-    (key) => key.toLowerCase() === 'authorization',
+    (key) => key.toLowerCase() === tokenName.toLowerCase(),
   );
 
   return startRequest({
     ...options,
     headers: {
       ...options.headers,
-      ...(token && !hasAuthorization ? { Authorization: `Bearer ${token}` } : {}),
+      ...(token && !hasAuthorization
+        ? { [tokenName]: tokenPrefix ? `${tokenPrefix} ${token}` : token }
+        : {}),
     },
   });
 };

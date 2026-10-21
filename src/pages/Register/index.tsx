@@ -7,6 +7,7 @@ import { Alert, Button, Form, Input, Result } from 'antd';
 import AuthLayout from '@/components/AuthLayout';
 import styles from '@/components/AuthLayout/index.less';
 import { type LoginParams, register } from '@/services/auth';
+import { getRequestErrorMessage } from '@/utils/request/error';
 
 interface RegisterFormValues extends LoginParams {
   confirmPassword: string;
@@ -14,7 +15,7 @@ interface RegisterFormValues extends LoginParams {
 
 export default function RegisterPage() {
   const [submitting, setSubmitting] = useState(false);
-  const [registerError, setRegisterError] = useState(false);
+  const [registerError, setRegisterError] = useState('');
   const [registeredUsername, setRegisteredUsername] = useState<string>();
 
   const handleRegister = async ({ username, password }: RegisterFormValues) => {
@@ -23,12 +24,12 @@ export default function RegisterPage() {
     }
 
     setSubmitting(true);
-    setRegisterError(false);
+    setRegisterError('');
     try {
       const result = await register({ username: username.trim(), password });
       setRegisteredUsername(result.username);
-    } catch {
-      setRegisterError(true);
+    } catch (error) {
+      setRegisterError(getRequestErrorMessage(error, '注册失败，请稍后重试或联系管理员。'));
     } finally {
       setSubmitting(false);
     }
@@ -53,8 +54,8 @@ export default function RegisterPage() {
       ) : (
         <>
           {registerError && (
-            <div className={styles.error} role="alert">
-              <Alert type="error" showIcon title="注册失败，请稍后重试或联系管理员。" />
+            <div className={styles.error}>
+              <Alert type="error" showIcon title={registerError} />
             </div>
           )}
           <Form<RegisterFormValues>
@@ -64,7 +65,7 @@ export default function RegisterPage() {
             requiredMark={false}
             scrollToFirstError={{ focus: true }}
             onFinish={handleRegister}
-            onValuesChange={() => setRegisterError(false)}
+            onValuesChange={() => setRegisterError('')}
           >
             <Form.Item
               name="username"
@@ -72,14 +73,18 @@ export default function RegisterPage() {
               validateTrigger="onBlur"
               rules={[
                 { required: true, whitespace: true, message: '请输入账号' },
-                { pattern: /^[a-zA-Z0-9_]{4,20}$/, message: '账号需为 4–20 位字母、数字或下划线' },
+                {
+                  pattern: /^[a-zA-Z0-9_]{4,32}$/,
+                  transform: (value: string) => value?.trim(),
+                  message: '账号需为 4–32 位字母、数字或下划线',
+                },
               ]}
             >
               <Input
                 prefix={<UserOutlined aria-hidden="true" />}
-                placeholder="4–20 位字母、数字或下划线"
+                placeholder="4–32 位字母、数字或下划线"
                 autoComplete="username"
-                maxLength={20}
+                maxLength={32}
               />
             </Form.Item>
             <Form.Item
@@ -87,17 +92,13 @@ export default function RegisterPage() {
               label="密码"
               validateTrigger="onBlur"
               rules={[
-                { required: true, message: '请输入密码' },
+                { required: true, whitespace: true, message: '请输入密码' },
                 { min: 8, max: 64, message: '密码长度需为 8–64 位' },
-                {
-                  pattern: /^(?=.*[a-zA-Z])(?=.*\d)\S+$/,
-                  message: '密码需包含字母和数字，且不能含空格',
-                },
               ]}
             >
               <Input.Password
                 prefix={<LockOutlined aria-hidden="true" />}
-                placeholder="8–64 位，包含字母和数字"
+                placeholder="8–64 位，不能全部为空白字符"
                 autoComplete="new-password"
               />
             </Form.Item>

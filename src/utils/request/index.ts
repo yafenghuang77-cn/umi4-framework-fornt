@@ -7,7 +7,7 @@ import { handleResponse, rejectResponse } from './response';
 export { redirectToLogin } from './auth';
 export { reportRequestError } from './report';
 export { resolveResponse } from './response';
-export { type RequestOptions } from './types';
+export { type ApiResponse, type RequestOptions } from './types';
 
 export const requestConfig: RequestConfig<unknown> = {
   baseURL: process.env.API_BASE_URL,

@@ -1,4 +1,4 @@
-import environment from './env';
+// import environment from './env';
 
 /**
  * 本地开发环境的反向代理配置
@@ -6,7 +6,7 @@ import environment from './env';
  */
 export default {
   '/api/': {
-    target: environment.variables.API_PROXY_TARGET,
+    target: 'http://localhost:9000/admin-platform',
     changeOrigin: true,
     pathRewrite: { '^/api': '' },
   },

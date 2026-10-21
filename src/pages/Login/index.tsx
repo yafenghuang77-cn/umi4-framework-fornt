@@ -7,12 +7,13 @@ import { Alert, Button, Form, Input } from 'antd';
 import AuthLayout from '@/components/AuthLayout';
 import styles from '@/components/AuthLayout/index.less';
 import { login, type LoginParams } from '@/services/auth';
+import { getRequestErrorMessage } from '@/utils/request/error';
 import { setToken } from '@/utils/request/token';
 
 export default function LoginPage() {
   const { search } = useLocation();
   const username = new URLSearchParams(search).get('username') || '';
-  const [loginError, setLoginError] = useState(false);
+  const [loginError, setLoginError] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const { setInitialState } = useModel('@@initialState');
 
@@ -22,14 +23,14 @@ export default function LoginPage() {
     }
 
     setSubmitting(true);
-    setLoginError(false);
+    setLoginError('');
     try {
       const result = await login(values);
-      setToken(result.token);
-      await setInitialState((state) => ({ ...state!, name: result.name }));
+      setToken(result.tokenValue, { tokenName: result.tokenName, tokenPrefix: result.tokenPrefix });
+      await setInitialState((state) => ({ ...state!, name: result.user.username }));
       history.replace('/welcome');
-    } catch {
-      setLoginError(true);
+    } catch (error) {
+      setLoginError(getRequestErrorMessage(error, '暂时无法登录，请联系管理员。'));
     } finally {
       setSubmitting(false);
     }
@@ -38,8 +39,8 @@ export default function LoginPage() {
   return (
     <AuthLayout title="登录工作台" eyebrow="欢迎回来" description="使用您的账号和密码继续。">
       {loginError && (
-        <div className={styles.error} role="alert">
-          <Alert type="error" showIcon title="暂时无法登录，请联系管理员。" />
+        <div className={styles.error}>
+          <Alert type="error" showIcon title={loginError} />
         </div>
       )}
       <Form<LoginParams>
@@ -49,7 +50,7 @@ export default function LoginPage() {
         requiredMark={false}
         initialValues={{ username }}
         onFinish={handleLogin}
-        onValuesChange={() => setLoginError(false)}
+        onValuesChange={() => setLoginError('')}
       >
         <Form.Item
           name="username"

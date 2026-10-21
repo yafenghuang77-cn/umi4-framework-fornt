@@ -1,30 +1,41 @@
+import { request } from '@umijs/max';
+
 export interface LoginParams {
   username: string;
   password: string;
 }
 
-export interface LoginResult {
-  token: string;
-  name: string;
-}
-
-/** 临时模拟登录；接入后端时替换此函数，保留返回类型即可。 */
-export async function login(params: LoginParams): Promise<LoginResult> {
-  // TODO: 调用真实登录接口，将后端结果转换为 LoginResult。
-  // 模拟凭证仅用于前端登录流程，不保存密码。
-  return {
-    token: `mock-${crypto.randomUUID()}`,
-    name: params.username.trim(),
-  };
-}
-
-export interface RegisterResult {
+export interface AuthUser {
+  id: number;
   username: string;
+  createdAt: string;
 }
 
-/** 临时模拟注册；接入后端时替换此函数，保留返回类型即可。 */
-export async function register(params: LoginParams): Promise<RegisterResult> {
-  // 与模拟登录保持一致，仅演示前端流程，不持久化账号或密码。
-  // TODO: 调用真实注册接口，将后端结果转换为 RegisterResult。
-  return { username: params.username.trim() };
+export interface LoginResult {
+  tokenName: string;
+  tokenPrefix: string | null;
+  tokenValue: string;
+  /** Sa-Token 返回的剩余有效秒数。 */
+  timeout: number;
+  user: AuthUser;
+}
+
+// /api 前缀由开发代理或部署服务器转发到后端服务。
+const ROOT = '/api/auth';
+const options = { method: 'POST', skipAuth: true, skipErrorHandler: true };
+
+/** 全局响应拦截器解包 COLA data，错误由表单就地展示。 */
+export function login(params: LoginParams): Promise<LoginResult> {
+  return request<LoginResult>(`${ROOT}/login`, {
+    ...options,
+    data: { username: params.username.trim(), password: params.password },
+  });
+}
+
+/** 注册只返回用户信息，不建立登录会话。 */
+export function register(params: LoginParams): Promise<AuthUser> {
+  return request<AuthUser>(`${ROOT}/register`, {
+    ...options,
+    data: { username: params.username.trim(), password: params.password },
+  });
 }

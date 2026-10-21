@@ -5,12 +5,25 @@ import { finishRequest } from '@/utils/monitoring/request';
 import { isUnauthorizedResponse } from './auth';
 import { isBinaryResponse } from './binary';
 import { BusinessError } from './error';
-import { type RequestOptions } from './types';
+import { type ApiResponse, type RequestOptions } from './types';
+
+function isApiResponse(body: unknown): body is ApiResponse<unknown> {
+  return (
+    typeof body === 'object' &&
+    body !== null &&
+    'success' in body &&
+    typeof body.success === 'boolean' &&
+    'errCode' in body &&
+    typeof body.errCode === 'string' &&
+    'errMessage' in body &&
+    typeof body.errMessage === 'string'
+  );
+}
 
 /**
  * 统一决定请求返回值，T 表示调用方期望的最终返回类型。
- * 默认提取后端 data；returnFullResponse 为 true 时保留完整后端响应体。
- * 二进制及不含 data 字段的非标准响应原样返回。
+ * 默认提取 COLA data；returnFullResponse 为 true 时保留完整后端响应体。
+ * 二进制及非 COLA 响应原样返回。
  */
 export function resolveResponse<T = unknown>(
   body: unknown,
@@ -20,7 +33,7 @@ export function resolveResponse<T = unknown>(
     return body as T;
   }
 
-  if (typeof body === 'object' && body !== null && 'data' in body) {
+  if (isApiResponse(body) && 'data' in body) {
     return body.data as T;
   }
 
@@ -31,10 +44,7 @@ export function resolveResponse<T = unknown>(
 export const handleResponse: ResponseInterceptor = (response) => {
   const businessFailed =
     isUnauthorizedResponse(response.data) ||
-    (typeof response.data === 'object' &&
-      response.data !== null &&
-      'success' in response.data &&
-      response.data.success === false);
+    (isApiResponse(response.data) && (!response.data.success || response.data.errCode !== '0'));
   finishRequest(response.config, response.status, businessFailed);
   // 下载/流响应直接透传，跳过业务码判断和统一响应转换。
   const responseType = response.config?.responseType;
@@ -47,18 +57,8 @@ export const handleResponse: ResponseInterceptor = (response) => {
     return response;
   }
 
-  // HTTP 200 也可能携带未登录业务码，统一交给 errorHandler 上报并触发登录入口。
-  if (isUnauthorizedResponse(response.data)) {
-    throw new BusinessError(response.data);
-  }
-
-  // 提取 data 前处理业务失败，避免 Umi 后续拦截器丢失原始 success 字段。
-  if (
-    typeof response.data === 'object' &&
-    response.data !== null &&
-    'success' in response.data &&
-    response.data.success === false
-  ) {
+  // 提取 data 前检查 success / errCode，HTTP 200 的业务失败也必须拒绝。
+  if (businessFailed) {
     throw new BusinessError(response.data);
   }
 

@@ -85,7 +85,7 @@ pnpm test:e2e
 
 可使用 `pnpm test:e2e:ui` 打开交互模式、`pnpm test:e2e:headed` 查看浏览器执行过程，或使用 `pnpm test:e2e:report` 查看 HTML 报告。报告输出到 `playwright-report/`，失败时的截图、视频和 Trace 输出到 `test-results/`。
 
-当前浏览器用例覆盖登录校验、模拟登录与退出、用户页面直接访问和刷新，以及品牌切换与持久化。登录仍使用模拟实现，接入真实认证后需同步调整测试数据和用例。指定已有服务、调整测试端口和调试方法见 [Playwright 测试说明](docs/Playwright测试说明.md)。
+当前浏览器用例覆盖登录注册校验、COLA 认证响应、业务失败提示、退出清除凭证、用户页面直接访问和刷新，以及品牌切换与持久化。认证用例通过 Playwright 拦截 HTTP 请求并返回与后端一致的响应，不创建数据库账号。指定已有服务、调整测试端口和调试方法见 [Playwright 测试说明](docs/Playwright测试说明.md)。
 
 两套测试分别运行，打包命令和提交钩子不会自动执行测试。提交前建议运行 `pnpm test`、`pnpm typecheck` 和 `pnpm lint`；修改页面流程时再运行 `pnpm test:e2e`。
 
@@ -139,6 +139,12 @@ BUILD_OUTPUT_PATH=framework
 
 ## 接口与环境配置
 
+登录、注册已接入 `admin-platform-server`：前端发送 `POST /api/auth/login`、`POST /api/auth/register`，JSON 请求体为 `{ username, password }`，不携带旧 Token。DEV 默认将 `/api/` 代理到 `http://localhost:9000/admin-platform/`，因此后端登录地址为 `http://localhost:9000/admin-platform/auth/login`。可通过 `.env.dev.local` 的 `API_PROXY_TARGET` 覆盖目标；修改后重启前端服务。
+
+统一响应使用后端 COLA 格式 `{ success, errCode, errMessage, data }`：`success: true` 且 `errCode: "0"` 表示成功，默认返回 `data`；`returnFullResponse: true` 保留整个响应体。业务失败读取 `errMessage`，HTTP 200 的失败响应也会拒绝。HTTP 401 或 `errCode: "401"` 清除本地凭证并跳转登录。旧的 `code / message / messages` 不再用于响应解析。
+
+登录 `data` 包含 `tokenName`、`tokenPrefix`、`tokenValue`、`timeout`、`user`，用户对象为 `{ id, username, createdAt }`。前端保存原始 `tokenValue` 及请求头元数据，后续按 `tokenName: tokenPrefix + 空格 + tokenValue` 发送（当前为 `Authorization: Bearer <tokenValue>`）。注册直接返回用户对象，成功后前往登录，不自动建立会话。后端统一将账号转为小写，前端显示和回填使用响应中的 `username`；密码原样提交，不去除空格。
+
 公共变量和业务环境变量分别维护在项目根目录：
 
 | 文件              | 用途                                      |
@@ -166,7 +172,7 @@ BUILD_OUTPUT_PATH=framework
 
 Umi 原生只读取 `.env` 和 `.env.local`；`config/env.ts` 根据 `UMI_ENV` 补充读取 `.env.<环境>` 和可选的 `.env.<环境>.local`。接口变量优先级从高到低为：**当前进程变量（包含 Umi 已加载的公共 `.env` / `.env.local`）→ `.env.<环境>.local` → `.env.<环境>`**。公共 `.env` 建议只放公共进程变量，接口默认值放在对应环境文件中；`.env.local` 中的接口变量会覆盖所有环境。
 
-各环境统一使用相同变量名，接口地址默认是 `/`，使用同源请求。例如修改 `.env.uat`，或创建 `.env.uat.local`：
+各环境统一使用相同变量名，接口地址默认是 `/`，使用同源请求。DEV 已配置本地后端，UAT/PRE/PROD 的示例目标需替换为实际地址。例如修改 `.env.uat`，或创建 `.env.uat.local`：
 
 ```dotenv
 APP_ENV=uat
@@ -176,7 +182,7 @@ API_BASE_URL=/
 API_PROXY_TARGET=https://uat-api.example.com
 ```
 
-如果希望浏览器直接请求接口域名，可将 `API_BASE_URL` 改为实际的绝对地址，并确保后端允许跨域。代理只处理 `/api/` 路径，会去掉 `/api` 前缀再转发。
+代理只处理 `/api/` 路径，会去掉 `/api` 前缀再转发；`API_PROXY_TARGET` 需包含后端服务前缀，例如 `http://localhost:9000/admin-platform`。线上同源部署也需将 `/api/` 反向代理到该服务前缀。如果将 `API_BASE_URL` 改为绝对地址，该目标也需承接 `/api/` 路径，并确保允许跨域。
 
 以上域名为示例，使用时替换为实际接口地址。公共及各环境默认文件纳入版本管理；`.env.local` 和 `.env.*.local` 已被 Git 忽略。原有 `UAT_API_BASE_URL`、`PRE_API_BASE_URL`、`PROD_API_BASE_URL` 及对应的 `*_API_PROXY_TARGET` 统一改为 `API_BASE_URL`、`API_PROXY_TARGET`，本地或 CI 旧配置需同步更新。
 

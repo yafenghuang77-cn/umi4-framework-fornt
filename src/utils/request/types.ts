@@ -1,5 +1,13 @@
 import { type RequestOptions as UmiRequestOptions } from '@umijs/max';
 
+/** 后端 COLA SingleResponse JSON 协议。 */
+export interface ApiResponse<T> {
+  success: boolean;
+  errCode: string;
+  errMessage: string;
+  data: T;
+}
+
 export interface RequestOptions extends UmiRequestOptions {
   /** 默认返回后端 data；设为 true 时返回完整后端响应体。 */
   returnFullResponse?: boolean;

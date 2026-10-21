@@ -197,11 +197,14 @@ function update(change: (next: SystemConfig, req: MockRequest) => void) {
       const parsed = configSchema.parse(next);
       validateConfig(parsed);
       config = parsed;
-      res.json({ success: true, data: config });
+      res.json({ success: true, errCode: '0', errMessage: '成功', data: config });
     } catch (error) {
-      res
-        .status(400)
-        .json({ success: false, message: error instanceof Error ? error.message : '配置保存失败' });
+      res.status(400).json({
+        success: false,
+        errCode: '9000',
+        errMessage: error instanceof Error ? error.message : '配置保存失败',
+        data: null,
+      });
     }
   };
 }
@@ -235,7 +238,7 @@ const saveRole = update((next, req) => {
 
 export default {
   'GET /api/system/config': (_req: MockRequest, res: MockResponse) => {
-    res.json({ success: true, data: config });
+    res.json({ success: true, errCode: '0', errMessage: '成功', data: config });
   },
   'POST /api/system/menus': saveMenu,
   'PUT /api/system/menus/:id': saveMenu,
