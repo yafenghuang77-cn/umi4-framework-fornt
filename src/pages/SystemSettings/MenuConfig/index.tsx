@@ -1,6 +1,18 @@
 import { type Key, useEffect, useState } from 'react';
 
-import { FileOutlined, FolderOutlined, PlusOutlined } from '@ant-design/icons';
+import {
+  DashboardOutlined,
+  FileOutlined,
+  FolderOpenOutlined,
+  FolderOutlined,
+  HomeOutlined,
+  MenuOutlined,
+  PlusOutlined,
+  SafetyCertificateOutlined,
+  SettingOutlined,
+  TeamOutlined,
+  UserOutlined,
+} from '@ant-design/icons';
 import { PageContainer, type ProColumns, ProTable } from '@ant-design/pro-components';
 import { useModel } from '@umijs/max';
 import {
@@ -36,16 +48,21 @@ interface MenuFilters {
   enabled?: 'enabled' | 'disabled';
 }
 
-const iconOptions = [
-  'HomeOutlined',
-  'SettingOutlined',
-  'MenuOutlined',
-  'SafetyCertificateOutlined',
-  'TeamOutlined',
-  'UserOutlined',
-  'FolderOpenOutlined',
-  'DashboardOutlined',
-].map((value) => ({ label: value, value }));
+const menuIcons: Record<string, { name: string; Icon: typeof HomeOutlined }> = {
+  HomeOutlined: { name: '首页', Icon: HomeOutlined },
+  SettingOutlined: { name: '设置', Icon: SettingOutlined },
+  MenuOutlined: { name: '菜单', Icon: MenuOutlined },
+  SafetyCertificateOutlined: { name: '权限', Icon: SafetyCertificateOutlined },
+  TeamOutlined: { name: '团队', Icon: TeamOutlined },
+  UserOutlined: { name: '用户', Icon: UserOutlined },
+  FolderOpenOutlined: { name: '文件夹', Icon: FolderOpenOutlined },
+  DashboardOutlined: { name: '仪表盘', Icon: DashboardOutlined },
+};
+
+const iconOptions = Object.entries(menuIcons).map(([value, { name, Icon }]) => ({
+  value,
+  label: <Icon aria-label={name} />,
+}));
 
 function filterTree(nodes: MenuNode[], filters: MenuFilters, parentMatches = false): MenuNode[] {
   return nodes.flatMap((node) => {
@@ -93,7 +110,7 @@ export default function MenuConfig() {
   const { message } = App.useApp();
   const [filters, setFilters] = useState<MenuFilters>({});
   const { viewportRef, viewportStyle, scrollY } = useTableLayout();
-  const [expanded, setExpanded] = useState<Key[]>();
+  const [expanded, setExpanded] = useState<Key[]>([]);
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<SystemMenu>();
   const [form] = Form.useForm<SystemMenu>();
@@ -138,12 +155,7 @@ export default function MenuConfig() {
         code: values.code.trim(),
       };
       await saveMenu(menu);
-      setExpanded((ids) => [
-        ...new Set([
-          ...(ids || menus.map((item) => item.id)),
-          ...(menu.parentId ? [menu.parentId] : []),
-        ]),
-      ]);
+      setExpanded((ids) => [...new Set([...ids, ...(menu.parentId ? [menu.parentId] : [])])]);
       setOpen(false);
       message.success(editing ? '菜单已更新' : '菜单已新增');
     } catch (issue) {
@@ -157,16 +169,16 @@ export default function MenuConfig() {
       dataIndex: 'name',
       fieldProps: { placeholder: '请输入', 'aria-label': '搜索菜单' },
       width: 240,
-      render: (_, menu) => (
-        <Space>
-          {menu.type === 'directory' ? (
-            <FolderOutlined aria-hidden="true" />
-          ) : (
-            <FileOutlined aria-hidden="true" />
-          )}
-          {menu.name}
-        </Space>
-      ),
+      render: (_, menu) => {
+        const Icon =
+          menuIcons[menu.icon]?.Icon || (menu.type === 'directory' ? FolderOutlined : FileOutlined);
+        return (
+          <Space>
+            <Icon aria-hidden="true" />
+            {menu.name}
+          </Space>
+        );
+      },
     },
     {
       title: '菜单标识',
@@ -299,16 +311,9 @@ export default function MenuConfig() {
               >
                 新增菜单
               </Button>,
-              <Button key="expand" onClick={() => setExpanded(menus.map((menu) => menu.id))}>
-                全部展开
-              </Button>,
-              <Button key="collapse" disabled={searching} onClick={() => setExpanded([])}>
-                全部收起
-              </Button>,
             ]}
             expandable={{
-              expandedRowKeys:
-                searching || expanded === undefined ? menus.map((menu) => menu.id) : expanded,
+              expandedRowKeys: searching ? menus.map((menu) => menu.id) : expanded,
               onExpandedRowsChange: (keys) => setExpanded([...keys]),
             }}
             locale={{
@@ -422,34 +427,58 @@ export default function MenuConfig() {
             )}
             <div className={styles.formGrid}>
               <Form.Item name="icon" label="菜单图标">
-                <Select allowClear placeholder="不设置图标" options={iconOptions} />
+                <Select allowClear virtual={false} placeholder="不设置图标" options={iconOptions} />
               </Form.Item>
               <Form.Item
                 name="sort"
                 label="显示排序"
                 rules={[{ required: true, message: '请输入排序值' }]}
-                extra="同级菜单按数值从小到大排列。"
+                extra=""
               >
                 <InputNumber min={0} max={9999} precision={0} style={{ width: '100%' }} />
               </Form.Item>
             </div>
-            <div className={styles.formGrid}>
-              <Form.Item
-                name="enabled"
-                label="菜单状态"
-                valuePropName="checked"
-                extra="停用目录时，其下级页面也不计入有效菜单。"
-              >
-                <Switch checkedChildren="启用" unCheckedChildren="停用" />
-              </Form.Item>
-              <Form.Item
-                name="visible"
-                label="菜单栏显示"
-                valuePropName="checked"
-                extra="隐藏仅影响展示，仍可作为授权页面。"
-              >
-                <Switch checkedChildren="显示" unCheckedChildren="隐藏" />
-              </Form.Item>
+            <div className={styles.menuSettings}>
+              <div className={styles.settingRow}>
+                <div className={styles.settingText}>
+                  <Typography.Text id="menu-enabled-label">菜单状态</Typography.Text>
+                  <Typography.Text
+                    id="menu-enabled-description"
+                    type="secondary"
+                    className={styles.settingHint}
+                  >
+                    停用后，当前菜单及下级页面不计入有效菜单。
+                  </Typography.Text>
+                </div>
+                <Form.Item name="enabled" valuePropName="checked" noStyle>
+                  <Switch
+                    aria-labelledby="menu-enabled-label"
+                    aria-describedby="menu-enabled-description"
+                    checkedChildren="启用"
+                    unCheckedChildren="停用"
+                  />
+                </Form.Item>
+              </div>
+              <div className={styles.settingRow}>
+                <div className={styles.settingText}>
+                  <Typography.Text id="menu-visible-label">菜单栏显示</Typography.Text>
+                  <Typography.Text
+                    id="menu-visible-description"
+                    type="secondary"
+                    className={styles.settingHint}
+                  >
+                    隐藏后不在菜单栏展示，仍可分配访问权限。
+                  </Typography.Text>
+                </div>
+                <Form.Item name="visible" valuePropName="checked" noStyle>
+                  <Switch
+                    aria-labelledby="menu-visible-label"
+                    aria-describedby="menu-visible-description"
+                    checkedChildren="显示"
+                    unCheckedChildren="隐藏"
+                  />
+                </Form.Item>
+              </div>
             </div>
           </Form>
         </Drawer>

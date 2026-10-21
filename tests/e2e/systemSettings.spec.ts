@@ -1,8 +1,32 @@
-import { type APIRequestContext, expect, test } from '@playwright/test';
+import { type APIRequestContext, expect, type Page, test } from '@playwright/test';
 
 import { type SystemConfig } from '@/types/systemConfig';
 
 test.describe.configure({ mode: 'serial' });
+
+async function expectTableLayout(page: Page) {
+  await expect
+    .poll(() =>
+      page.locator('.ant-pagination').evaluate((pagination) => {
+        const content = document.querySelector('.ant-pro-layout-content')!;
+        const body = document.querySelector('.ant-table-body')!;
+        const table = body.closest('.ant-table-wrapper')!;
+        const footerBounds = pagination.getBoundingClientRect();
+        const tableBounds = table.getBoundingClientRect();
+        return {
+          bottomGap: Math.round(
+            content.getBoundingClientRect().bottom -
+              footerBounds.bottom -
+              parseFloat(getComputedStyle(content).paddingBottom),
+          ),
+          separateRow: body.getBoundingClientRect().bottom <= footerBounds.top,
+          fullWidth: Math.abs(footerBounds.width - tableBounds.width) < 1,
+          pageScrollable: content.scrollHeight > content.clientHeight,
+        };
+      }),
+    )
+    .toEqual({ bottomGap: 0, separateRow: true, fullWidth: true, pageScrollable: false });
+}
 
 async function clearTestConfig(request: APIRequestContext) {
   const response = await request.get('/api/system/config');
@@ -25,6 +49,16 @@ async function clearTestConfig(request: APIRequestContext) {
 }
 
 test.beforeEach(async ({ request }) => {
+  // 开发服务返回页面时，Mock 中间件可能尚未完成注册。
+  await expect
+    .poll(async () => {
+      const response = await request.get('/api/system/config');
+      if (!response.ok() || !response.headers()['content-type']?.includes('application/json')) {
+        return false;
+      }
+      return (await response.json()).success === true;
+    })
+    .toBe(true);
   await clearTestConfig(request);
 });
 test.afterEach(async ({ request }) => {
@@ -35,24 +69,10 @@ test('菜单抽屉维护、角色绑定菜单和用户绑定角色', async ({ pa
   await page.goto('/framework/admin/menus');
   await expect(page.getByRole('table').first()).toBeVisible();
   await expect(page.getByRole('button', { name: '编辑系统设置', exact: true })).toBeVisible();
-  await expect
-    .poll(() =>
-      page.locator('.ant-pagination').evaluate((element) => {
-        const content = document.querySelector('.ant-pro-layout-content')!;
-        return Math.round(
-          content.getBoundingClientRect().bottom -
-            element.getBoundingClientRect().bottom -
-            parseFloat(getComputedStyle(content).paddingBottom),
-        );
-      }),
-    )
-    .toBe(0);
-  const content = page.locator('.ant-pro-layout-content');
-  expect(await content.evaluate((element) => element.scrollHeight <= element.clientHeight)).toBe(
-    true,
-  );
-  const body = page.locator('.ant-table-body');
-  expect(await body.evaluate((element) => element.scrollHeight > element.clientHeight)).toBe(true);
+  await expectTableLayout(page);
+  await expect(page.getByRole('button', { name: '全部展开', exact: true })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: '全部收起', exact: true })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: '编辑菜单配置', exact: true })).not.toBeVisible();
   await page.screenshot({ path: testInfo.outputPath('menu-config.png'), fullPage: true });
 
   await page.getByRole('button', { name: '新增菜单', exact: true }).click();
@@ -60,8 +80,18 @@ test('菜单抽屉维护、角色绑定菜单和用户绑定角色', async ({ pa
   await drawer.getByText('目录', { exact: true }).click();
   await drawer.getByLabel('菜单名称', { exact: true }).fill('测试目录');
   await drawer.getByLabel('菜单标识', { exact: true }).fill('e2e_directory');
+  await drawer.getByLabel('菜单图标', { exact: true }).click();
+  const menuIcon = page.getByRole('option', { name: '菜单', exact: true });
+  await expect(menuIcon.locator('svg')).toBeVisible();
+  await page.screenshot({ path: testInfo.outputPath('menu-icon-picker.png'), fullPage: true });
+  await menuIcon.click();
+  await expect(drawer.getByRole('img', { name: '菜单', exact: true })).toBeVisible();
   await drawer.getByRole('button', { name: '保存菜单' }).click();
   await expect(drawer).not.toBeVisible();
+  const directory = page
+    .getByRole('row')
+    .filter({ has: page.getByRole('button', { name: '编辑测试目录', exact: true }) });
+  await expect(directory.locator('[data-icon="menu"]')).toBeVisible();
 
   await page.getByRole('button', { name: '在测试目录下新增', exact: true }).click();
   drawer = page.getByRole('dialog');
@@ -78,14 +108,19 @@ test('菜单抽屉维护、角色绑定菜单和用户绑定角色', async ({ pa
   await drawer.getByRole('button', { name: '保存菜单' }).click();
   await expect(drawer).not.toBeVisible();
   await page.reload();
-  await expect(page.getByRole('button', { name: '编辑测试页面已编辑', exact: true })).toBeVisible();
-
-  await page.getByRole('button', { name: '全部收起', exact: true }).click();
+  const expand = page
+    .getByRole('row')
+    .filter({ has: page.getByRole('button', { name: '编辑测试目录', exact: true }) })
+    .locator('.ant-table-row-expand-icon');
   await expect(
     page.getByRole('button', { name: '编辑测试页面已编辑', exact: true }),
   ).not.toBeVisible();
-  await page.getByRole('button', { name: '全部展开', exact: true }).click();
+  await expand.click();
   await expect(page.getByRole('button', { name: '编辑测试页面已编辑', exact: true })).toBeVisible();
+  await expand.click();
+  await expect(
+    page.getByRole('button', { name: '编辑测试页面已编辑', exact: true }),
+  ).not.toBeVisible();
   await page.getByRole('textbox', { name: '搜索菜单', exact: true }).fill('测试页面已编辑');
   await expect(page.getByRole('button', { name: '编辑首页', exact: true })).toBeVisible();
   await page.getByRole('button', { name: /^(?:loading\s+)?查\s*询$/ }).click();
@@ -95,6 +130,7 @@ test('菜单抽屉维护、角色绑定菜单和用户绑定角色', async ({ pa
   await expect(page.getByRole('button', { name: '编辑首页', exact: true })).toBeVisible();
 
   await page.goto('/framework/admin/permissions');
+  await expectTableLayout(page);
   await page.getByRole('button', { name: '新增角色', exact: true }).click();
   drawer = page.getByRole('dialog');
   await drawer.getByLabel('角色名称', { exact: true }).fill('流程验证角色');
@@ -109,6 +145,7 @@ test('菜单抽屉维护、角色绑定菜单和用户绑定角色', async ({ pa
   await page.screenshot({ path: testInfo.outputPath('permission-config.png'), fullPage: true });
 
   await page.getByRole('tab', { name: /用户绑定角色/ }).click();
+  await expectTableLayout(page);
   await page.getByRole('button', { name: '为王五绑定角色', exact: true }).click();
   drawer = page.getByRole('dialog');
   await drawer.getByRole('combobox').click();

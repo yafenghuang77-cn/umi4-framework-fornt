@@ -73,6 +73,40 @@
   gap: 0 16px;
 }
 
+.menuSettings {
+  padding-inline: 16px;
+  border: 1px solid var(--ant-color-border-secondary, #f0f0f0);
+  border-radius: 8px;
+}
+
+.settingRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding-block: 16px;
+}
+
+.settingRow + .settingRow {
+  border-top: 1px solid var(--ant-color-border-secondary, #f0f0f0);
+}
+
+.settingRow :global(.ant-switch) {
+  flex: none;
+}
+
+.settingText {
+  flex: 1;
+  min-width: 0;
+}
+
+.settingHint {
+  display: block;
+  margin-top: 4px;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
 .treePanel {
   padding: 16px;
   margin-top: 12px;
